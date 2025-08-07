@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}طلب توظيف - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-plus"></i> طلب توظيف جديد</h4>
+                    <p class="mb-0 mt-2">املأ البيانات التالية لتقديم طلب التوظيف</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="jobApplicationForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- البيانات الشخصية -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-user"></i> البيانات الشخصية</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- الاسم الأول -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.first_name.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.first_name(class="form-control") }}
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger">{{ form.first_name.errors[0] }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- اسم العائلة -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.last_name.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.last_name(class="form-control") }}
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger">{{ form.last_name.errors[0] }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- البريد الإلكتروني -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.email.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.email(class="form-control") }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">{{ form.email.errors[0] }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- رقم الهاتف -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.phone.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.phone(class="form-control") }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger">{{ form.phone.errors[0] }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- بيانات الوظيفة -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-briefcase"></i> بيانات الوظيفة المطلوبة</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- المنصب المطلوب -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.position_applied.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.position_applied(class="form-control") }}
+                                        {% if form.position_applied.errors %}
+                                            <div class="text-danger">{{ form.position_applied.errors[0] }}</div>
+                                        {% endif %}
+                                        <small class="text-muted">مثال: محاسب، مطور برمجيات، مدير مبيعات</small>
+                                    </div>
+                                    
+                                    <!-- سنوات الخبرة -->
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.experience_years.label(class="form-label") }}
+                                        {{ form.experience_years(class="form-control", min="0", max="50") }}
+                                        {% if form.experience_years.errors %}
+                                            <div class="text-danger">{{ form.experience_years.errors[0] }}</div>
+                                        {% endif %}
+                                        <small class="text-muted">عدد سنوات الخبرة في المجال</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- المؤهلات والمهارات -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> المؤهلات والمهارات</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- المؤهل التعليمي -->
+                                    <div class="col-md-12 mb-3">
+                                        {{ form.education.label(class="form-label") }}
+                                        {{ form.education(class="form-control") }}
+                                        {% if form.education.errors %}
+                                            <div class="text-danger">{{ form.education.errors[0] }}</div>
+                                        {% endif %}
+                                        <small class="text-muted">مثال: بكالوريوس في إدارة الأعمال، دبلوم في المحاسبة</small>
+                                    </div>
+                                    
+                                    <!-- المهارات -->
+                                    <div class="col-md-12 mb-3">
+                                        {{ form.skills.label(class="form-label") }}
+                                        {{ form.skills(class="form-control", rows="4") }}
+                                        {% if form.skills.errors %}
+                                            <div class="text-danger">{{ form.skills.errors[0] }}</div>
+                                        {% endif %}
+                                        <small class="text-muted">اذكر مهاراتك التقنية والشخصية (مثال: Excel، إدارة الفرق، التواصل)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- خطاب التقديم -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0"><i class="fas fa-envelope"></i> خطاب التقديم</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- خطاب التقديم -->
+                                    <div class="col-md-12 mb-3">
+                                        {{ form.cover_letter.label(class="form-label") }}
+                                        {{ form.cover_letter(class="form-control", rows="6") }}
+                                        {% if form.cover_letter.errors %}
+                                            <div class="text-danger">{{ form.cover_letter.errors[0] }}</div>
+                                        {% endif %}
+                                        <small class="text-muted">اكتب خطاب تقديم يوضح سبب رغبتك في العمل معنا ومؤهلاتك للوظيفة</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الحفظ -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('recruitment') }}" class="btn btn-secondary me-md-2">
+                                        <i class="fas fa-arrow-left"></i> رجوع
+                                    </a>
+                                    <button type="reset" class="btn btn-warning me-md-2">
+                                        <i class="fas fa-undo"></i> إعادة تعيين
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane"></i> تقديم الطلب
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- نصائح مفيدة -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb"></i> نصائح لطلب توظيف ناجح</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="mb-0">
+                                <li>تأكد من صحة جميع البيانات المدخلة</li>
+                                <li>اكتب خطاب تقديم واضح ومقنع</li>
+                                <li>اذكر مهاراتك وخبراتك بشكل مفصل</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="mb-0">
+                                <li>تأكد من أن بريدك الإلكتروني صحيح</li>
+                                <li>اذكر المنصب المطلوب بوضوح</li>
+                                <li>راجع طلبك قبل الإرسال</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// التحقق من صحة النموذج
+document.getElementById('jobApplicationForm').addEventListener('submit', function(e) {
+    const requiredFields = ['first_name', 'last_name', 'email', 'phone', 'position_applied'];
+    let isValid = true;
+    
+    requiredFields.forEach(function(fieldName) {
+        const field = document.getElementById(fieldName);
+        if (field && !field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else if (field) {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('يرجى ملء جميع الحقول المطلوبة');
+    }
+});
+
+// إزالة رسائل الخطأ عند الكتابة
+document.querySelectorAll('input, textarea, select').forEach(function(element) {
+    element.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+    });
+});
+
+// تحسين تجربة المستخدم
+document.addEventListener('DOMContentLoaded', function() {
+    // تركيز على أول حقل
+    const firstInput = document.querySelector('input[type="text"]');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // عداد الأحرف لخطاب التقديم
+    const coverLetterField = document.getElementById('cover_letter');
+    if (coverLetterField) {
+        const charCounter = document.createElement('small');
+        charCounter.className = 'text-muted';
+        coverLetterField.parentNode.appendChild(charCounter);
+        
+        function updateCharCount() {
+            const count = coverLetterField.value.length;
+            charCounter.textContent = `عدد الأحرف: ${count}`;
+        }
+        
+        coverLetterField.addEventListener('input', updateCharCount);
+        updateCharCount();
+    }
+});
+</script>
+{% endblock %}

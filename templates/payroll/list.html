@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الرواتب - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-money-bill"></i> إدارة الرواتب</h1>
+        <p class="mb-0">إدارة وعرض كشوف رواتب الموظفين</p>
+    </div>
+    <div>
+        <a href="{{ url_for('add_payroll') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> إضافة كشف راتب
+        </a>
+    </div>
+</div>
+
+<!-- إحصائيات سريعة -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ records|length }}</h4>
+                        <p class="mb-0">كشوف الرواتب</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-invoice-dollar fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ records|selectattr('status', 'equalto', 'paid')|list|length }}</h4>
+                        <p class="mb-0">مدفوعة</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ records|selectattr('status', 'equalto', 'approved')|list|length }}</h4>
+                        <p class="mb-0">معتمدة</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ current_month }}/{{ current_year }}</h4>
+                        <p class="mb-0">الشهر الحالي</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- فلاتر البحث -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label">الشهر</label>
+                <select class="form-select" id="monthFilter">
+                    <option value="">جميع الشهور</option>
+                    {% for i in range(1, 13) %}
+                    <option value="{{ i }}" {% if i == current_month %}selected{% endif %}>الشهر {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">السنة</label>
+                <select class="form-select" id="yearFilter">
+                    <option value="">جميع السنوات</option>
+                    {% for year in range(2020, 2030) %}
+                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">الحالة</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">جميع الحالات</option>
+                    <option value="draft">مسودة</option>
+                    <option value="approved">معتمد</option>
+                    <option value="paid">مدفوع</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">البحث</label>
+                <input type="text" class="form-control" id="searchInput" placeholder="البحث في الموظفين...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- جدول كشوف الرواتب -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>الموظف</th>
+                        <th>الشهر/السنة</th>
+                        <th>الراتب الأساسي</th>
+                        <th>إجمالي البدلات</th>
+                        <th>إجمالي الخصومات</th>
+                        <th>الراتب الإجمالي</th>
+                        <th>الراتب الصافي</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="payrollTableBody">
+                    {% for record in records %}
+                    <tr data-month="{{ record.month }}" data-year="{{ record.year }}" data-status="{{ record.status }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <strong>{{ record.employee.name_arabic }}</strong><br>
+                                    <small class="text-muted">{{ record.employee.employee_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ record.month }}/{{ record.year }}</td>
+                        <td>{{ "{:,.2f}".format(record.basic_salary) }} ريال</td>
+                        <td>{{ "{:,.2f}".format((record.housing_allowance or 0) + (record.transport_allowance or 0) + (record.other_allowances or 0)) }} ريال</td>
+                        <td>{{ "{:,.2f}".format((record.insurance_deduction or 0) + (record.tax_deduction or 0) + (record.other_deductions or 0)) }} ريال</td>
+                        <td><strong>{{ "{:,.2f}".format(record.gross_salary or 0) }} ريال</strong></td>
+                        <td><strong class="text-success">{{ "{:,.2f}".format(record.net_salary or 0) }} ريال</strong></td>
+                        <td>
+                            {% if record.status == 'draft' %}
+                                <span class="badge bg-secondary">مسودة</span>
+                            {% elif record.status == 'approved' %}
+                                <span class="badge bg-warning">معتمد</span>
+                            {% elif record.status == 'paid' %}
+                                <span class="badge bg-success">مدفوع</span>
+                            {% endif %}
+                        </td>
+                        <!-- في قسم الأزرار -->
+                        <td>
+                            <div class="btn-group" role="group">
+                                {% if can_edit('payroll') %}
+                                <a href="{{ url_for('edit_payroll', id=record.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </a>
+                                {% endif %}
+                                
+                                {% if can_delete('payroll') %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="confirmDelete({{ record.id }}, '{{ record.employee.full_name }}')">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewPayroll({{ record.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if record.status == 'draft' %}
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="approvePayroll({{ record.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                                {% if record.status == 'approved' %}
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="markAsPaid({{ record.id }})">
+                                    <i class="fas fa-money-bill"></i>
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePayroll({{ record.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">لا توجد كشوف رواتب للشهر الحالي</p>
+                            <a href="{{ url_for('add_payroll') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> إضافة كشف راتب جديد
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal لعرض تفاصيل كشف الراتب -->
+<div class="modal fade" id="payrollModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تفاصيل كشف الراتب</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="payrollModalBody">
+                <!-- سيتم تحميل المحتوى هنا -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// فلترة الجدول
+function filterTable() {
+    const monthFilter = document.getElementById('monthFilter').value;
+    const yearFilter = document.getElementById('yearFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('#payrollTableBody tr');
+    
+    rows.forEach(row => {
+        if (row.cells.length === 1) return; // تجاهل صف "لا توجد بيانات"
+        
+        const month = row.dataset.month;
+        const year = row.dataset.year;
+        const status = row.dataset.status;
+        const employeeName = row.cells[0].textContent.toLowerCase();
+        
+        const monthMatch = !monthFilter || month === monthFilter;
+        const yearMatch = !yearFilter || year === yearFilter;
+        const statusMatch = !statusFilter || status === statusFilter;
+        const searchMatch = !searchInput || employeeName.includes(searchInput);
+        
+        if (monthMatch && yearMatch && statusMatch && searchMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// ربط أحداث الفلترة
+document.getElementById('monthFilter').addEventListener('change', filterTable);
+document.getElementById('yearFilter').addEventListener('change', filterTable);
+document.getElementById('statusFilter').addEventListener('change', filterTable);
+document.getElementById('searchInput').addEventListener('input', filterTable);
+
+// عرض تفاصيل كشف الراتب
+function viewPayroll(id) {
+    // يمكن إضافة AJAX لجبب التفاصيل
+    alert('عرض تفاصيل كشف الراتب رقم: ' + id);
+}
+
+// اعتماد كشف الراتب
+function approvePayroll(id) {
+    if (confirm('هل أنت متأكد من اعتماد كشف الراتب؟')) {
+        // يمكن إضافة AJAX لتحديث الحالة
+        alert('تم اعتماد كشف الراتب');
+        location.reload();
+    }
+}
+
+// تحديد كمدفوع
+function markAsPaid(id) {
+    if (confirm('هل أنت متأكد من تحديد كشف الراتب كمدفوع؟')) {
+        // يمكن إضافة AJAX لتحديث الحالة
+        alert('تم تحديد كشف الراتب كمدفوع');
+        location.reload();
+    }
+}
+
+// حذف كشف الراتب
+function deletePayroll(id) {
+    if (confirm('هل أنت متأكد من حذف كشف الراتب؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+        // يمكن إضافة AJAX للحذف
+        alert('تم حذف كشف الراتب');
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

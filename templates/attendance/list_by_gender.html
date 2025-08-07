@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}الحضور والغياب - {{ gender }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header with buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-clock"></i> الحضور والغياب - {{ gender }}</h2>
+            <p class="mb-0">إدارة حضور وغياب الموظفين - {{ today.strftime('%Y-%m-%d') }}</p>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i> طباعة
+            </button>
+            <a href="{{ url_for('add_attendance_status') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> إضافة حالة
+            </a>
+            <button type="button" class="btn btn-info" onclick="exportData()">
+                <i class="fas fa-download"></i> تصدير
+            </button>
+            <button type="button" class="btn btn-warning" onclick="importData()">
+                <i class="fas fa-upload"></i> استيراد
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('attendance_by_gender', gender=gender) }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">البحث</label>
+                        <input type="text" class="form-control" name="search" value="{{ request.args.get('search', '') }}" 
+                               placeholder="البحث بالرقم الوظيفي، الاسم، رقم الهوية، أو رقم الجوال">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">التاريخ</label>
+                        <input type="date" class="form-control" name="date" value="{{ request.args.get('date', today.strftime('%Y-%m-%d')) }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">القسم</label>
+                        <select class="form-select" name="department">
+                            <option value="">جميع الأقسام</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}" {{ 'selected' if request.args.get('department') == dept }}>{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">الوردية</label>
+                        <select class="form-select" name="shift">
+                            <option value="">جميع الورديات</option>
+                            {% for shift in shifts %}
+                            <option value="{{ shift }}" {{ 'selected' if request.args.get('shift') == shift }}>{{ shift }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">الحالة</label>
+                        <select class="form-select" name="status">
+                            <option value="">جميع الحالات</option>
+                            <option value="present" {{ 'selected' if request.args.get('status') == 'present' }}>حاضر</option>
+                            <option value="absent" {{ 'selected' if request.args.get('status') == 'absent' }}>غائب</option>
+                            <option value="late" {{ 'selected' if request.args.get('status') == 'late' }}>متأخر</option>
+                            <option value="half_day" {{ 'selected' if request.args.get('status') == 'half_day' }}>نصف يوم</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                        <a href="{{ url_for('attendance_by_gender', gender=gender) }}" class="btn btn-secondary">
+                            <i class="fas fa-refresh"></i> إعادة تعيين
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="text-success">{{ records|selectattr('status', 'equalto', 'present')|list|length }}</h3>
+                    <p class="mb-0">حاضرين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h3 class="text-danger">{{ records|selectattr('status', 'equalto', 'absent')|list|length }}</h3>
+                    <p class="mb-0">غائبين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="text-warning">{{ records|selectattr('status', 'equalto', 'late')|list|length }}</h3>
+                    <p class="mb-0">متأخرين</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h3 class="text-info">{{ records|selectattr('status', 'equalto', 'half_day')|list|length }}</h3>
+                    <p class="mb-0">نصف يوم</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-list"></i> سجل الحضور - {{ gender }}</h5>
+        </div>
+        <div class="card-body">
+            {% if records %}
+            <!-- تحديث الجدول لإضافة عمود نوع الموظف -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>الرقم الوظيفي</th>
+                            <th>الاسم</th>
+                            <th>القسم</th>
+                            <th>الوردية</th>
+                            <th>نوع الموظف</th>
+                            <th>وقت الدخول</th>
+                            <th>وقت الخروج</th>
+                            <th>إجمالي الساعات</th>
+                            <th>الحالة</th>
+                            <th>حالة البيانات</th>
+                            <th>ملاحظات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>{{ record.employee.employee_id }}</td>
+                            <td>{{ record.employee.full_name }}</td>
+                            <td>{{ record.employee.department }}</td>
+                            <td>{{ record.employee.work_shift }}</td>
+                            <td>
+                                {% if record.employee_type == 'substitute' %}
+                                    <span class="badge badge-info">بديل</span>
+                                    {% if record.substitute_for %}
+                                        <small class="text-muted d-block">بديل لـ: {{ record.substitute_for.full_name }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-primary">أساسي</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.check_in.strftime('%H:%M') if record.check_in else '-' }}</td>
+                            <td>{{ record.check_out.strftime('%H:%M') if record.check_out else '-' }}</td>
+                            <td>{{ "%.2f"|format(record.total_hours) if record.total_hours else '-' }}</td>
+                            <td>
+                                {% if record.status == 'present' %}
+                                    <span class="badge badge-success">حاضر</span>
+                                {% elif record.status == 'absent' %}
+                                    <span class="badge badge-warning">غائب</span>
+                                {% elif record.status == 'withdrawn' %}
+                                    <span class="badge badge-danger">منسحب</span>
+                                {% elif record.status == 'late' %}
+                                    <span class="badge badge-info">متأخر</span>
+                                {% elif record.status == 'half_day' %}
+                                    <span class="badge badge-secondary">نصف يوم</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.data_completeness == 'complete' %}
+                                    <span class="badge badge-success">مكتملة</span>
+                                {% else %}
+                                    <span class="badge badge-warning">غير مكتملة</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.notes or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('edit_attendance', id=record.id) }}" class="btn btn-sm btn-warning">تعديل</a>
+                                <form method="POST" action="{{ url_for('delete_attendance', id=record.id) }}" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">لا توجد سجلات حضور</h5>
+                <p class="text-muted">لم يتم العثور على سجلات حضور تطابق معايير البحث</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function exportData() {
+    window.location.href = '{{ url_for("export_attendance", gender=gender) }}?' + new URLSearchParams(window.location.search);
+}
+
+function importData() {
+    // يمكن إضافة modal لرفع ملف الاستيراد
+    alert('سيتم إضافة وظيفة الاستيراد قريباً');
+}
+</script>
+{% endblock %}

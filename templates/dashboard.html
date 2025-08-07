@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة التحكم - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
+    <p class="mb-0">إدارة شاملة لنظام الموارد البشرية</p>
+</div>
+
+<div class="row">
+    <!-- إدارة الموظفين -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-users"></i> إدارة الموظفين</h5>
+            </div>
+            <div class="card-body">
+                <p>إضافة وتعديل وإدارة بيانات الموظفين</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('employees') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> عرض الموظفين
+                    </a>
+                    <a href="{{ url_for('add_employee') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> إضافة موظف جديد
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- الحضور والغياب -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> الحضور والغياب</h5>
+            </div>
+            <div class="card-body">
+                <p>تسجيل ومتابعة حضور الموظفين</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('attendance') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> سجل الحضور
+                    </a>
+                    <a href="{{ url_for('add_attendance') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> تسجيل حضور
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- الرواتب -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-money-bill"></i> إدارة الرواتب</h5>
+            </div>
+            <div class="card-body">
+                <p>حساب وإدارة رواتب الموظفين</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('payroll') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> كشوف الرواتب
+                    </a>
+                    <a href="{{ url_for('add_payroll') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> إضافة كشف راتب
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- العهد -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-box"></i> إدارة العهد</h5>
+            </div>
+            <div class="card-body">
+                <p>إدارة الأصول والعهد المخصصة</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('assets') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> قائمة العهد
+                    </a>
+                    <a href="{{ url_for('add_asset') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> إضافة عهدة جديدة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- التوظيف -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-user-plus"></i> التوظيف</h5>
+            </div>
+            <div class="card-body">
+                <p>إدارة طلبات التوظيف والمتقدمين</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('recruitment') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> طلبات التوظيف
+                    </a>
+                    <a href="{{ url_for('apply_job') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> تقديم طلب توظيف
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- التقارير -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> التقارير</h5>
+            </div>
+            <div class="card-body">
+                <p>تقارير وإحصائيات شاملة</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-chart-pie"></i> الإحصائيات العامة
+                    </a>
+                    <a href="{{ url_for('reports') }}" class="btn btn-info">
+                        <i class="fas fa-file-pdf"></i> تقارير مفصلة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+RAIZO_HR/
+├── app.py                 # الملف الرئيسي للتطبيق
+├── config.py             # إعدادات التطبيق
+├── models.py             # نماذج قاعدة البيانات
+├── forms.py              # نماذج الويب
+├── requirements.txt      # المتطلبات
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── main.js
+│   └── images/
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── dashboard.html
+│   ├── recruitment/
+│   ├── employees/
+│   ├── attendance/
+│   ├── payroll/
+│   └── assets/
+└── database.db

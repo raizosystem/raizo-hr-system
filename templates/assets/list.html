@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة العهد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="text-primary"><i class="fas fa-box me-2"></i>إدارة العهد</h2>
+                    {% if can_add('assets') %}
+                    <a href="{{ url_for('add_asset') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>إضافة عهدة جديدة
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ assets|length }}</h4>
+                            <p class="mb-0">إجمالي العهد</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-box fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ assets|selectattr('status', 'equalto', 'available')|list|length }}</h4>
+                            <p class="mb-0">متاحة</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ assets|selectattr('status', 'equalto', 'assigned')|list|length }}</h4>
+                            <p class="mb-0">مخصصة</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ assets|selectattr('condition', 'equalto', 'damaged')|list|length }}</h4>
+                            <p class="mb-0">تالفة</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">البحث</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="البحث في العهد...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">الحالة</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="available">متاحة</option>
+                                <option value="assigned">مخصصة</option>
+                                <option value="returned">مُرجعة</option>
+                                <option value="damaged">تالفة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">الفئة</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">جميع الفئات</option>
+                                {% for asset in assets %}
+                                    {% if asset.category not in categories %}
+                                        {% set _ = categories.append(asset.category) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for category in categories|unique %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">الحالة الفنية</label>
+                            <select class="form-select" id="conditionFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="good">جيدة</option>
+                                <option value="fair">مقبولة</option>
+                                <option value="poor">سيئة</option>
+                                <option value="damaged">تالفة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times"></i> مسح الفلاتر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assets Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>قائمة العهد</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="assetsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>رقم العهدة</th>
+                                    <th>اسم العهدة</th>
+                                    <th>الفئة</th>
+                                    <th>القيمة</th>
+                                    <th>الموظف المخصص</th>
+                                    <th>تاريخ التخصيص</th>
+                                    <th>الحالة</th>
+                                    <th>الحالة الفنية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td><strong>{{ asset.asset_id }}</strong></td>
+                                    <td>{{ asset.name }}</td>
+                                    <td><span class="badge bg-info">{{ asset.category }}</span></td>
+                                    <td>
+                                        {% if asset.value %}
+                                            {{ "%.2f"|format(asset.value) }} ريال
+                                        {% else %}
+                                            غير محدد
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if asset.employee %}
+                                            <a href="{{ url_for('view_employee', id=asset.employee.id) }}" class="text-decoration-none">
+                                                {{ asset.employee.full_name }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">غير مخصص</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if asset.assigned_date %}
+                                            {{ asset.assigned_date.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if asset.status == 'available' %}
+                                            <span class="badge bg-success">متاحة</span>
+                                        {% elif asset.status == 'assigned' %}
+                                            <span class="badge bg-warning">مخصصة</span>
+                                        {% elif asset.status == 'returned' %}
+                                            <span class="badge bg-info">مُرجعة</span>
+                                        {% elif asset.status == 'damaged' %}
+                                            <span class="badge bg-danger">تالفة</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if asset.condition == 'good' %}
+                                            <span class="badge bg-success">جيدة</span>
+                                        {% elif asset.condition == 'fair' %}
+                                            <span class="badge bg-warning">مقبولة</span>
+                                        {% elif asset.condition == 'poor' %}
+                                            <span class="badge bg-danger">سيئة</span>
+                                        {% elif asset.condition == 'damaged' %}
+                                            <span class="badge bg-dark">تالفة</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#assetModal{{ asset.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{{ url_for('edit_asset', id=asset.id) }}" 
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <!-- إضافة هذا النموذج داخل حلقة العهد -->
+                                            <form id="deleteForm{{ asset.id }}" method="POST" action="{{ url_for('delete_asset', id=asset.id) }}" style="display: none;">
+                                                {{ csrf_token() }}
+                                            </form>
+                                            
+                                            <!-- تحديث زر الحذف -->
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="deleteAssetForm({{ asset.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Asset Details Modal -->
+                                <div class="modal fade" id="assetModal{{ asset.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">تفاصيل العهدة: {{ asset.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-primary">المعلومات الأساسية</h6>
+                                                        <table class="table table-sm">
+                                                            <tr>
+                                                                <td><strong>رقم العهدة:</strong></td>
+                                                                <td>{{ asset.asset_id }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>اسم العهدة:</strong></td>
+                                                                <td>{{ asset.name }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>الفئة:</strong></td>
+                                                                <td>{{ asset.category }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>القيمة:</strong></td>
+                                                                <td>
+                                                                    {% if asset.value %}
+                                                                        {{ "%.2f"|format(asset.value) }} ريال
+                                                                    {% else %}
+                                                                        غير محدد
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-primary">معلومات التخصيص</h6>
+                                                        <table class="table table-sm">
+                                                            <tr>
+                                                                <td><strong>الموظف المخصص:</strong></td>
+                                                                <td>
+                                                                    {% if asset.employee %}
+                                                                        {{ asset.employee.full_name }}
+                                                                    {% else %}
+                                                                        غير مخصص
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>تاريخ التخصيص:</strong></td>
+                                                                <td>
+                                                                    {% if asset.assigned_date %}
+                                                                        {{ asset.assigned_date.strftime('%Y-%m-%d') }}
+                                                                    {% else %}
+                                                                        -
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>تاريخ الإرجاع:</strong></td>
+                                                                <td>
+                                                                    {% if asset.return_date %}
+                                                                        {{ asset.return_date.strftime('%Y-%m-%d') }}
+                                                                    {% else %}
+                                                                        -
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>الحالة:</strong></td>
+                                                                <td>
+                                                                    {% if asset.status == 'available' %}
+                                                                        <span class="badge bg-success">متاحة</span>
+                                                                    {% elif asset.status == 'assigned' %}
+                                                                        <span class="badge bg-warning">مخصصة</span>
+                                                                    {% elif asset.status == 'returned' %}
+                                                                        <span class="badge bg-info">مُرجعة</span>
+                                                                    {% elif asset.status == 'damaged' %}
+                                                                        <span class="badge bg-danger">تالفة</span>
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                {% if asset.description %}
+                                                <div class="row mt-3">
+                                                    <div class="col-12">
+                                                        <h6 class="text-primary">الوصف</h6>
+                                                        <p>{{ asset.description }}</p>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if asset.notes %}
+                                                <div class="row mt-3">
+                                                    <div class="col-12">
+                                                        <h6 class="text-primary">ملاحظات</h6>
+                                                        <p>{{ asset.notes }}</p>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                                                <a href="{{ url_for('edit_asset', id=asset.id) }}" class="btn btn-primary">تعديل</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search and Filter Functions
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const conditionFilter = document.getElementById('conditionFilter').value;
+    
+    const table = document.getElementById('assetsTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        if (rows[i].classList.contains('modal')) continue;
+        
+        const cells = rows[i].getElementsByTagName('td');
+        if (cells.length === 0) continue;
+        
+        const assetId = cells[0].textContent.toLowerCase();
+        const assetName = cells[1].textContent.toLowerCase();
+        const category = cells[2].textContent.toLowerCase();
+        const status = rows[i].querySelector('.badge').textContent;
+        const condition = cells[7].querySelector('.badge').textContent;
+        
+        let showRow = true;
+        
+        // Search filter
+        if (searchTerm && !assetId.includes(searchTerm) && !assetName.includes(searchTerm)) {
+            showRow = false;
+        }
+        
+        // Status filter
+        if (statusFilter && !status.includes(getStatusText(statusFilter))) {
+            showRow = false;
+        }
+        
+        // Category filter
+        if (categoryFilter && !category.includes(categoryFilter.toLowerCase())) {
+            showRow = false;
+        }
+        
+        // Condition filter
+        if (conditionFilter && !condition.includes(getConditionText(conditionFilter))) {
+            showRow = false;
+        }
+        
+        rows[i].style.display = showRow ? '' : 'none';
+    }
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        'available': 'متاحة',
+        'assigned': 'مخصصة',
+        'returned': 'مُرجعة',
+        'damaged': 'تالفة'
+    };
+    return statusMap[status] || '';
+}
+
+function getConditionText(condition) {
+    const conditionMap = {
+        'good': 'جيدة',
+        'fair': 'مقبولة',
+        'poor': 'سيئة',
+        'damaged': 'تالفة'
+    };
+    return conditionMap[condition] || '';
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('conditionFilter').value = '';
+    filterTable();
+}
+
+function deleteAssetForm(assetId) {
+    if (confirm('هل أنت متأكد من حذف هذه العهدة؟')) {
+        document.getElementById(`deleteForm${assetId}`).submit();
+    }
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('keyup', filterTable);
+document.getElementById('statusFilter').addEventListener('change', filterTable);
+document.getElementById('categoryFilter').addEventListener('change', filterTable);
+document.getElementById('conditionFilter').addEventListener('change', filterTable);
+</script>
+{% endblock %}

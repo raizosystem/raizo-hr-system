@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الصلاحيات - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-shield-alt"></i> إدارة الصلاحيات</h1>
+        <p class="mb-0">عرض وإدارة صلاحيات الأدوار في النظام</p>
+    </div>
+    {% if current_user.role == 'admin' %}
+    <div>
+        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+            <i class="fas fa-plus"></i> إضافة دور جديد
+        </button>
+        <a href="{{ url_for('add_user') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> إضافة مستخدم جديد
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal لإضافة دور جديد -->
+{% if current_user.role == 'admin' %}
+<div class="modal fade" id="addRoleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إضافة دور جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_role') }}">
+                {{ csrf_token() }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="role_key" class="form-label">مفتاح الدور (بالإنجليزية)</label>
+                        <input type="text" class="form-control" id="role_key" name="role_key" required pattern="[a-z_]+" placeholder="مثال: supervisor">
+                        <div class="form-text">يجب أن يكون بأحرف إنجليزية صغيرة وشرطات سفلية فقط</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role_name" class="form-label">اسم الدور (بالعربية)</label>
+                        <input type="text" class="form-control" id="role_name" name="role_name" required placeholder="مثال: مشرف">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">صلاحيات الوحدات</label>
+                        <div class="row">
+                            {% for module_key, module_info in SYSTEM_MODULES.items() %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6><i class="{{ module_info.icon }} me-2"></i>{{ module_info.name }}</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="{{ module_key }}_view" id="{{ module_key }}_view">
+                                                    <label class="form-check-label" for="{{ module_key }}_view">عرض</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="{{ module_key }}_add" id="{{ module_key }}_add">
+                                                    <label class="form-check-label" for="{{ module_key }}_add">إضافة</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="{{ module_key }}_edit" id="{{ module_key }}_edit">
+                                                    <label class="form-check-label" for="{{ module_key }}_edit">تعديل</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="{{ module_key }}_delete" id="{{ module_key }}_delete">
+                                                    <label class="form-check-label" for="{{ module_key }}_delete">حذف</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <label class="form-label">الحقول المتاحة:</label>
+                                            <select class="form-select" name="{{ module_key }}_fields" multiple>
+                                                <option value="all">جميع الحقول</option>
+                                                {% for field_key, field_info in module_info.fields.items() %}
+                                                <option value="{{ field_key }}">{{ field_info.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-success">إضافة الدور</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- قائمة الأدوار -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-users-cog"></i> الأدوار</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group" id="rolesList">
+                    {% for role_key, role_data in ROLE_PERMISSIONS.items() %}
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-role="{{ role_key }}">
+                        <span><i class="fas fa-user-tag me-2"></i>{{ role_data.name }}</span>
+                        {% if current_user.role == 'admin' and role_key not in ['admin', 'manager', 'hr', 'employee', 'user'] %}
+                        <form method="POST" action="{{ url_for('delete_role', role_key=role_key) }}" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الدور؟')">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- تفاصيل الصلاحيات -->
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-list-check"></i> تفاصيل الصلاحيات</h6>
+            </div>
+            <div class="card-body">
+                <div id="permissionsDetails">
+                    <p class="text-muted">اختر دوراً من القائمة لعرض صلاحياته</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const systemModules = {{ SYSTEM_MODULES | tojson }};
+const rolePermissions = {{ ROLE_PERMISSIONS | tojson }};
+
+function showRolePermissions(roleKey) {
+    const roleData = rolePermissions[roleKey];
+    const detailsDiv = document.getElementById('permissionsDetails');
+    
+    if (!roleData) return;
+    
+    let html = `<h5 class="text-primary mb-4">${roleData.name}</h5>`;
+    
+    // إنشاء جدول الصلاحيات
+    html += `
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>الوحدة</th>
+                        <th>عرض</th>
+                        <th>إضافة</th>
+                        <th>تعديل</th>
+                        <th>حذف</th>
+                        <th>الحقول المتاحة</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    Object.keys(systemModules).forEach(moduleKey => {
+        const moduleInfo = systemModules[moduleKey];
+        const modulePermissions = roleData.modules[moduleKey] || {};
+        
+        html += `<tr>`;
+        html += `<td><i class="${moduleInfo.icon} me-2"></i>${moduleInfo.name}</td>`;
+        
+        // العمليات
+        ['view', 'add', 'edit', 'delete'].forEach(operation => {
+            const allowed = modulePermissions[operation];
+            const icon = allowed ? 'fas fa-check text-success' : 'fas fa-times text-danger';
+            html += `<td class="text-center"><i class="${icon}"></i></td>`;
+        });
+        
+        // الحقول المتاحة
+        html += '<td>';
+        const allowedFields = modulePermissions.fields;
+        if (allowedFields === 'all') {
+            html += '<span class="badge bg-success">جميع الحقول</span>';
+        } else if (Array.isArray(allowedFields) && allowedFields.length > 0) {
+            allowedFields.forEach(fieldGroup => {
+                if (moduleInfo.fields[fieldGroup]) {
+                    html += `<span class="badge bg-primary me-1">${moduleInfo.fields[fieldGroup].name}</span>`;
+                }
+            });
+        } else {
+            html += '<span class="badge bg-secondary">لا توجد</span>';
+        }
+        html += '</td>';
+        
+        html += `</tr>`;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    detailsDiv.innerHTML = html;
+}
+
+// إضافة مستمعي الأحداث
+document.addEventListener('DOMContentLoaded', function() {
+    const roleLinks = document.querySelectorAll('[data-role]');
+    
+    roleLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // إزالة التحديد السابق
+            roleLinks.forEach(l => l.classList.remove('active'));
+            
+            // تحديد الرابط الحالي
+            this.classList.add('active');
+            
+            // عرض الصلاحيات
+            const roleKey = this.getAttribute('data-role');
+            showRolePermissions(roleKey);
+        });
+    });
+    
+    // عرض أول دور افتراضياً
+    if (roleLinks.length > 0) {
+        roleLinks[0].click();
+    }
+});
+</script>
+{% endblock %}

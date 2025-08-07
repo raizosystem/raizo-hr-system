@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات الموظف - {{ employee.name_arabic }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.8cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 9px;
+            line-height: 1.3;
+            color: #2c3e50;
+            background: #fff;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            position: relative;
+            border-bottom: 2px solid #f39c12;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .company-logo img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            filter: brightness(1.1) contrast(1.1);
+        }
+        
+        .header-text {
+            text-align: right;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            color: #ffffff;
+        }
+        
+        .header .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            font-weight: 300;
+            color: #f39c12;
+        }
+        
+        .employee-card {
+            background: #f8f9fa;
+            margin: 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .employee-header {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .employee-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.3);
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .employee-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .employee-id {
+            font-size: 11px;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 8px;
+            flex: 1;
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            background: linear-gradient(45deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 10px;
+            position: relative;
+            border-bottom: 1px solid #f39c12;
+        }
+        
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #f39c12;
+        }
+        
+        .section-content {
+            padding: 8px;
+            flex: 1;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 6px;
+            align-items: center;
+            border-bottom: 1px solid #f1f3f4;
+            padding-bottom: 4px;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #1e3c72;
+            width: 80px;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 9px;
+        }
+        
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-suspended {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .additional-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 8px 15px;
+            text-align: center;
+            border-top: 2px solid #f39c12;
+            color: white;
+            font-size: 9px;
+            margin-top: auto;
+        }
+        
+        .print-date {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            color: rgba(30, 60, 114, 0.02);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @media print {
+            body { 
+                margin: 0;
+                box-shadow: none;
+            }
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+                height: 100vh;
+            }
+            .no-print { 
+                display: none; 
+            }
+            .watermark {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">RAIZO</div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="company-logo">
+                    <img src="{{ url_for('static', filename='images/شعار رايزو المحاسبي بدون خلفية.png') }}" alt="شعار رايزو">
+                </div>
+                <div class="header-text">
+                    <h1>نظام رايزو للموارد البشرية</h1>
+                    <div class="subtitle">تقرير بيانات الموظف</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="employee-card">
+            <div class="employee-header">
+                {% if employee.employee_photo %}
+                    <img src="{{ url_for('static', filename='uploads/photos/' + employee.employee_photo) }}" 
+                         alt="صورة الموظف" class="employee-photo">
+                {% else %}
+                    <div class="employee-photo" style="background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        👤
+                    </div>
+                {% endif %}
+                <div class="employee-name">{{ employee.name_arabic }}</div>
+                <div class="employee-id">الرقم الوظيفي: {{ employee.employee_id }}</div>
+            </div>
+            
+            <div class="content-grid">
+                <!-- البيانات الشخصية -->
+                <div class="info-section">
+                    <div class="section-header">
+                        📋 البيانات الشخصية
+                    </div>
+                    <div class="section-content">
+                        <div class="info-row">
+                            <span class="info-label">الاسم بالعربية</span>
+                            <span class="info-value">{{ employee.name_arabic }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الاسم بالإنجليزية</span>
+                            <span class="info-value">{{ employee.name_english or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">رقم الهوية</span>
+                            <span class="info-value">{{ employee.national_id }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">تاريخ الميلاد</span>
+                            <span class="info-value">{{ employee.birth_date.strftime('%Y-%m-%d') if employee.birth_date else 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الجنس</span>
+                            <span class="info-value">{{ employee.gender }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الحالة الاجتماعية</span>
+                            <span class="info-value">{{ employee.marital_status or 'غير محدد' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- بيانات الاتصال -->
+                <div class="info-section">
+                    <div class="section-header">
+                        📞 بيانات الاتصال
+                    </div>
+                    <div class="section-content">
+                        <div class="info-row">
+                            <span class="info-label">رقم الجوال</span>
+                            <span class="info-value">{{ employee.phone_number or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">البريد الإلكتروني</span>
+                            <span class="info-value">{{ employee.email or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">العنوان</span>
+                            <span class="info-value">{{ employee.address or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">المدينة</span>
+                            <span class="info-value">{{ employee.city or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الرمز البريدي</span>
+                            <span class="info-value">{{ employee.postal_code or 'غير محدد' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- بيانات العمل -->
+                <div class="info-section">
+                    <div class="section-header">
+                        💼 بيانات العمل
+                    </div>
+                    <div class="section-content">
+                        <div class="info-row">
+                            <span class="info-label">نوع الموظف</span>
+                            <span class="info-value">{{ employee.employee_type }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">تاريخ التوظيف</span>
+                            <span class="info-value">{{ employee.hire_date.strftime('%Y-%m-%d') if employee.hire_date else 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الراتب الأساسي</span>
+                            <span class="info-value">{{ employee.basic_salary or 'غير محدد' }} ريال</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">المسمى الوظيفي</span>
+                            <span class="info-value">{{ employee.job_title or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">القسم</span>
+                            <span class="info-value">{{ employee.department or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الحالة</span>
+                            <span class="info-value">
+                                {% if employee.status == 'active' %}
+                                    <span class="status-badge status-active">نشط</span>
+                                {% elif employee.status == 'inactive' %}
+                                    <span class="status-badge status-inactive">غير نشط</span>
+                                {% elif employee.status == 'suspended' %}
+                                    <span class="status-badge status-suspended">موقوف</span>
+                                {% else %}
+                                    <span class="status-badge">{{ employee.status }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- البيانات المصرفية -->
+                <div class="info-section">
+                    <div class="section-header">
+                        🏦 البيانات المصرفية
+                    </div>
+                    <div class="section-content">
+                        <div class="info-row">
+                            <span class="info-label">البنك</span>
+                            <span class="info-value">{{ employee.bank_name or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">رقم الآيبان</span>
+                            <span class="info-value">{{ employee.iban_number or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">البنك الإضافي</span>
+                            <span class="info-value">{{ employee.additional_bank or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">الآيبان الإضافي</span>
+                            <span class="info-value">{{ employee.additional_iban or 'غير محدد' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">اسم المستفيد</span>
+                            <span class="info-value">{{ employee.beneficiary_name or 'غير محدد' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- معلومات إضافية -->
+                <div class="info-section full-width">
+                    <div class="section-header">
+                        ℹ️ معلومات إضافية
+                    </div>
+                    <div class="section-content">
+                        <div class="additional-info">
+                            <div>
+                                <div class="info-row">
+                                    <span class="info-label">تاريخ انتهاء الهوية</span>
+                                    <span class="info-value">{{ employee.id_expiry_date.strftime('%Y-%m-%d') if employee.id_expiry_date else 'غير محدد' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">رخصة القيادة</span>
+                                    <span class="info-value">{{ 'نعم' if employee.has_driving_license else 'لا' }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="info-row">
+                                    <span class="info-label">تاريخ انتهاء الرخصة</span>
+                                    <span class="info-value">{{ employee.license_expiry_date.strftime('%Y-%m-%d') if employee.license_expiry_date else 'غير محدد' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">جهة الاتصال الطارئ</span>
+                                    <span class="info-value">{{ employee.emergency_contact or 'غير محدد' }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="info-row">
+                                    <span class="info-label">رقم المخيم</span>
+                                    <span class="info-value">{{ employee.camp_number or 'غير محدد' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">فترة العمل</span>
+                                    <span class="info-value">{{ employee.work_shift or 'غير محدد' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="print-date">
+                📅 تم الطباعة في: {{ current_time }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

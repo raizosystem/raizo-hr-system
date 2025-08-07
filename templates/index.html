@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="fas fa-chart-bar"></i> نظرة عامة على النظام</h1>
+    </div>
+</div>
+
+<!-- إحصائيات الموظفين -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['الإدارة'] }}</h4>
+                        <p class="mb-0">الإدارة</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-tie fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-purple text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['الإداريات'] }}</h4>
+                        <p class="mb-0">الإداريات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-graduate fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['الحراسات الأمنية'] }}</h4>
+                        <p class="mb-0">الحراسات الأمنية</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['الحارسات'] }}</h4>
+                        <p class="mb-0">الحارسات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-female fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- تعديل الصف الثاني ليستخدم col-md-3 بدلاً من col-md-4 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['العمالة رجال'] }}</h4>
+                        <p class="mb-0">العمالة رجال</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-hard-hat fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['العاملات'] }}</h4>
+                        <p class="mb-0">العاملات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-friends fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats['مرشدي الحافلات'] }}</h4>
+                        <p class="mb-0">مرشدي الحافلات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-bus fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- إضافة عمود رابع فارغ أو بطاقة جديدة للتوازن -->
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.get('أخرى', 0) }}</h4>
+                        <p class="mb-0">أخرى</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات إضافية -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ total_employees }}</h3>
+                <p class="mb-0">إجمالي الموظفين</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ present_today }}</h3>
+                <p class="mb-0">حاضرين اليوم</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-danger">
+            <div class="card-body text-center">
+                <h3 class="text-danger">{{ absent_today }}</h3>
+                <p class="mb-0">غائبين اليوم</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ pending_applications }}</h3>
+                <p class="mb-0">طلبات التوظيف المعلقة</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- الرسوم البيانية -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> توزيع الموظفين حسب النوع</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="employeeTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> حالة الحضور اليوم</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// رسم بياني لتوزيع الموظفين
+const employeeCtx = document.getElementById('employeeTypeChart').getContext('2d');
+const employeeChart = new Chart(employeeCtx, {
+    type: 'pie',
+    data: {
+        labels: ['الإدارة', 'الإداريات', 'الحراسات الأمنية', 'الحارسات', 'العمالة رجال', 'العاملات', 'مرشدي الحافلات'],
+        datasets: [{
+            data: [{{ stats['الإدارة'] }}, {{ stats['الإداريات'] }}, {{ stats['الحراسات الأمنية'] }}, {{ stats['الحارسات'] }}, {{ stats['العمالة رجال'] }}, {{ stats['العاملات'] }}, {{ stats['مرشدي الحافلات'] }}],
+            backgroundColor: [
+                '#0d6efd', '#6f42c1', '#198754', '#17a2b8', '#ffc107', '#6c757d', '#212529'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// رسم بياني للحضور
+const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+const attendanceChart = new Chart(attendanceCtx, {
+    type: 'bar',
+    data: {
+        labels: ['حاضرين', 'غائبين'],
+        datasets: [{
+            label: 'عدد الموظفين',
+            data: [{{ present_today }}, {{ absent_today }}],
+            backgroundColor: ['#198754', '#dc3545']
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+
+<!-- استبدال الصفوف بـ Grid -->

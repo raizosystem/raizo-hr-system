@@ -1,0 +1,609 @@
+/* ===== متغيرات الألوان المستوحاة من الشعار ===== */
+:root {
+    --primary-dark: #1e3a5f;
+    --primary-light: #2c5282;
+    --accent-gold: #b8860b;
+    --accent-light-gold: #daa520;
+    --white: #ffffff;
+    --light-gray: #f8fafc;
+    --medium-gray: #e2e8f0;
+    --dark-gray: #4a5568;
+    --success: #38a169;
+    --warning: #d69e2e;
+    --danger: #e53e3e;
+    --info: #3182ce;
+}
+
+/* ===== تنسيق عام للنظام ===== */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 0;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+.col-md-3, .col-md-4, .col-md-6, .col-md-12 {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-bottom: 1rem;
+}
+
+body {
+    font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-gray) 0%, #e6f3ff 100%);
+    color: var(--dark-gray);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== شريط التنقل الاحترافي ===== */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%) !important;
+    box-shadow: 0 4px 20px rgba(30, 58, 95, 0.3);
+    padding: 1rem 0;
+    border-bottom: 3px solid var(--accent-gold);
+    width: 100%;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.navbar .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--white) !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand i {
+    color: var(--accent-gold);
+    font-size: 2rem;
+    text-shadow: none;
+}
+
+.navbar-nav .nav-link {
+    color: var(--white) !important;
+    font-weight: 500;
+    padding: 0.8rem 1.2rem !important;
+    border-radius: 8px;
+    margin: 0 0.2rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+    background: rgba(184, 134, 11, 0.2);
+    transform: translateY(-2px);
+    color: var(--accent-light-gold) !important;
+}
+
+.navbar-nav .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--accent-gold);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-nav .nav-link:hover::before {
+    width: 80%;
+}
+
+/* ===== البطاقات الاحترافية ===== */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(30, 58, 95, 0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: var(--white);
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(30, 58, 95, 0.2);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    color: var(--white);
+    border: none;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    transform: translate(30px, -30px);
+    opacity: 0.1;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* ===== ألوان البطاقات المختلفة ===== */
+.bg-primary {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%) !important;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%) !important;
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%) !important;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
+}
+
+.bg-secondary {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%) !important;
+}
+
+.bg-dark {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+}
+
+/* إضافة اللون البنفسجي للإداريات */
+.bg-purple {
+    background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%) !important;
+}
+
+.bg-secondary {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%) !important;
+}
+
+.bg-dark {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+}
+
+/* ===== تحسينات إضافية ===== */
+.text-center {
+    text-align: center;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.align-self-center {
+    align-self: center;
+}
+
+.fa-2x {
+    font-size: 2em;
+}
+
+/* ===== تحسين التجاوب ===== */
+@media (max-width: 768px) {
+    .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-3 {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+/* ===== تنسيق التنبيهات ===== */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.dropdown-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+    color: var(--white);
+    padding: 1rem;
+    margin: 0;
+    border: none;
+}
+
+.notification-preview {
+    padding: 1rem;
+    border-bottom: 1px solid var(--medium-gray);
+    transition: all 0.3s ease;
+}
+
+.notification-preview:hover {
+    background: var(--light-gray);
+}
+
+.notification-preview.unread {
+    background: rgba(var(--info), 0.1);
+    border-left: 4px solid var(--info);
+}
+
+.notification-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--light-gray);
+}
+
+/* تنسيق شارة العدد */
+.badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
+}
+
+/* تحسين القوائم المنسدلة */
+.dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+.nav-link.dropdown-toggle {
+    position: relative;
+}
+
+/* تحسين أيقونة الجرس */
+.fa-bell {
+    font-size: 1.2rem;
+}
+
+/* تحسين عرض الإشعارات الفارغة */
+.text-muted .fa-bell-slash {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+    
+/* ===== تنسيقات صفحة تسجيل الدخول ===== */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--white);
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid var(--medium-gray);
+}
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    color: var(--primary-dark);
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.login-header p {
+    color: var(--dark-gray);
+    margin-bottom: 0;
+}
+
+.login-card .form-label {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: right;
+    display: block;
+}
+
+.login-card .form-control {
+    border: 2px solid var(--medium-gray);
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-align: right;
+}
+
+.login-card .form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(44, 82, 130, 0.25);
+    outline: none;
+}
+
+.login-card .btn-primary {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.login-card .btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 58, 95, 0.3);
+}
+
+.login-card .btn-primary:active {
+    transform: translateY(0);
+}
+
+.login-card .alert {
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-card small {
+    color: var(--dark-gray);
+    line-height: 1.5;
+}
+
+/* تحسين الشعار */
+.login-header img {
+    max-width: 80px;
+    height: auto;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+/* تأثيرات إضافية */
+.login-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* تحسين للشاشات الصغيرة */
+@media (max-width: 576px) {
+    .login-container {
+        padding: 15px;
+    }
+    
+    .login-card {
+        padding: 30px 20px;
+    }
+    
+    .login-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* إضافة هذا في نهاية الملف */
+
+/* تنسيق الإشعارات */
+.notification-item {
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.notification-item.unread {
+    background-color: #f8f9fa;
+    border-left-color: #007bff;
+}
+
+.notification-item:hover {
+    background-color: #e9ecef;
+}
+
+.notification-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.unread-indicator {
+    margin-left: auto;
+}
+
+.dynamic-notifications {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* تحسين تموضع القوائم المنسدلة */
+.navbar-nav .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+    margin-top: 0.5rem;
+    z-index: 1050;
+    min-width: 250px;
+}
+
+/* تحسين قائمة التنبيهات */
+#notificationsDropdown + .dropdown-menu {
+    width: 350px !important;
+    max-width: 90vw;
+    right: 0 !important;
+    left: auto !important;
+}
+
+/* تحسين قائمة المستخدم */
+#navbarDropdown + .dropdown-menu {
+    min-width: 200px;
+    right: 0 !important;
+    left: auto !important;
+}
+
+/* إصلاح مشكلة الفيض على الشاشات الصغيرة */
+@media (max-width: 768px) {
+    .navbar-nav .dropdown-menu {
+        position: absolute !important;
+        right: 15px !important;
+        left: 15px !important;
+        width: auto !important;
+        max-width: calc(100vw - 30px);
+    }
+    
+    #notificationsDropdown + .dropdown-menu {
+        width: auto !important;
+        max-width: calc(100vw - 30px);
+    }
+}
+
+/* تحسين عرض القوائم */
+.dropdown-menu.show {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+/* تحسين شارة العداد */
+#notificationsDropdown .badge {
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* تحسين عرض الإشعارات */
+.notification-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background-color: #f8f9fa;
+    border-left-color: #007bff;
+}
+
+.notification-item:hover {
+    background-color: #e9ecef;
+}

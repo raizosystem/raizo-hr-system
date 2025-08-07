@@ -1,0 +1,23 @@
+# Google Drive credentials
+credentials.json
+token.json
+
+# Database
+instance/
+backups/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/

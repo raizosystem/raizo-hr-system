@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الموظف - {{ employee.name_arabic }}{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-user"></i> تفاصيل الموظف</h1>
+        <p class="mb-0">عرض بيانات الموظف التفصيلية</p>
+    </div>
+    <div>
+        <a href="{{ url_for('employees') }}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-right"></i> العودة للقائمة
+        </a>
+        <a href="{{ url_for('edit_employee', id=employee.id) }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> تعديل البيانات
+        </a>
+    </div>
+</div>
+
+<!-- Employee Details Card -->
+<div class="card employee-details-card">
+    <!-- Employee Header -->
+    <div class="card-header bg-gradient-primary text-white">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <div class="position-relative d-inline-block">
+                    {% if employee.employee_photo %}
+                        <img src="{{ url_for('static', filename='uploads/photos/' + employee.employee_photo) }}" 
+                             alt="صورة الموظف" class="rounded-circle border border-4 border-white shadow-lg" 
+                             style="width: 140px; height: 140px; object-fit: cover;"
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\"bg-gradient-secondary rounded-circle d-flex align-items-center justify-content-center shadow-lg border border-4 border-white\" style=\"width: 140px; height: 140px;\"><i class=\"fas fa-user text-white\" style=\"font-size: 50px;\"></i></div>';">
+                    {% else %}
+                        <div class="bg-gradient-secondary rounded-circle d-flex align-items-center justify-content-center shadow-lg border border-4 border-white" 
+                             style="width: 140px; height: 140px;">
+                            <i class="fas fa-user text-white" style="font-size: 50px;"></i>
+                        </div>
+                    {% endif %}
+                    <!-- Status indicator -->
+                    <div class="position-absolute bottom-0 end-0">
+                        {% if employee.status == 'active' %}
+                            <span class="badge bg-success rounded-pill border border-2 border-white" style="width: 20px; height: 20px;"></span>
+                        {% elif employee.status == 'inactive' %}
+                            <span class="badge bg-danger rounded-pill border border-2 border-white" style="width: 20px; height: 20px;"></span>
+                        {% else %}
+                            <span class="badge bg-warning rounded-pill border border-2 border-white" style="width: 20px; height: 20px;"></span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h2 class="text-white mb-1 fw-bold">{{ employee.name_arabic }}</h2>
+                <p class="text-white-50 mb-3 fs-5">{{ employee.name_english or 'غير محدد' }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-id-badge me-2"></i>
+                            <span>رقم الموظف: {{ employee.employee_id }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-building me-2"></i>
+                            <span>القسم: {{ employee.department }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-briefcase me-2"></i>
+                            <span>المنصب: {{ employee.position }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-circle me-2"></i>
+                            <span>الحالة: 
+                                {% if employee.status == 'active' %}
+                                    <span class="badge bg-success">نشط</span>
+                                {% elif employee.status == 'inactive' %}
+                                    <span class="badge bg-danger">غير نشط</span>
+                                {% elif employee.status == 'suspended' %}
+                                    <span class="badge bg-warning">موقوف</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ employee.status }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Details Tabs -->
+    <div class="card-body p-0">
+        <ul class="nav nav-pills nav-fill border-bottom" id="employeeTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="personal-tab" data-bs-toggle="pill" data-bs-target="#personal" type="button" role="tab">
+                    <i class="fas fa-user me-2"></i>البيانات الشخصية
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="contact-tab" data-bs-toggle="pill" data-bs-target="#contact" type="button" role="tab">
+                    <i class="fas fa-phone me-2"></i>بيانات التواصل
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="job-tab" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab">
+                    <i class="fas fa-briefcase me-2"></i>البيانات الوظيفية
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="financial-tab" data-bs-toggle="pill" data-bs-target="#financial" type="button" role="tab">
+                    <i class="fas fa-money-bill me-2"></i>البيانات المالية
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-4" id="employeeTabsContent">
+            <!-- Personal Information Tab -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-id-card me-2"></i>المعلومات الأساسية</h6>
+                            <div class="info-item">
+                                <label>الاسم بالعربية:</label>
+                                <span>{{ employee.name_arabic }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>الاسم بالإنجليزية:</label>
+                                <span>{{ employee.name_english or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>رقم الهوية:</label>
+                                <span>{{ employee.national_id or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>تاريخ الميلاد:</label>
+                                <span>{{ employee.birth_date.strftime('%Y-%m-%d') if employee.birth_date else 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>الجنسية:</label>
+                                <span>{{ employee.nationality or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-home me-2"></i>معلومات السكن</h6>
+                            <div class="info-item">
+                                <label>العنوان:</label>
+                                <span>{{ employee.address or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>المدينة:</label>
+                                <span>{{ employee.city or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>الرمز البريدي:</label>
+                                <span>{{ employee.postal_code or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Tab -->
+            <div class="tab-pane fade" id="contact" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-phone me-2"></i>أرقام الهاتف</h6>
+                            <div class="info-item">
+                                <label>رقم الجوال:</label>
+                                <span>{{ employee.phone or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>البريد الإلكتروني:</label>
+                                <span>{{ employee.email or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-users me-2"></i>جهة الاتصال في الطوارئ</h6>
+                            <div class="info-item">
+                                <label>اسم جهة الاتصال:</label>
+                                <span>{{ employee.emergency_contact_name or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>رقم جهة الاتصال:</label>
+                                <span>{{ employee.emergency_contact_phone or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Information Tab -->
+            <div class="tab-pane fade" id="job" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-briefcase me-2"></i>المعلومات الوظيفية</h6>
+                            <div class="info-item">
+                                <label>رقم الموظف:</label>
+                                <span>{{ employee.employee_id }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>القسم:</label>
+                                <span>{{ employee.department }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>المنصب:</label>
+                                <span>{{ employee.position }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>تاريخ التوظيف:</label>
+                                <span>{{ employee.hire_date.strftime('%Y-%m-%d') if employee.hire_date else 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>حالة الموظف:</label>
+                                <span>
+                                    {% if employee.status == 'active' %}
+                                        <span class="badge bg-success">نشط</span>
+                                    {% elif employee.status == 'inactive' %}
+                                        <span class="badge bg-danger">غير نشط</span>
+                                    {% elif employee.status == 'suspended' %}
+                                        <span class="badge bg-warning">موقوف</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ employee.status }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-graduation-cap me-2"></i>المؤهلات والخبرة</h6>
+                            <div class="info-item">
+                                <label>المؤهل العلمي:</label>
+                                <span>{{ employee.education or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>سنوات الخبرة:</label>
+                                <span>{{ employee.experience_years or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Information Tab -->
+            <div class="tab-pane fade" id="financial" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-money-bill me-2"></i>الراتب والبدلات</h6>
+                            <div class="info-item">
+                                <label>الراتب الأساسي:</label>
+                                <span>{{ "{:,.2f}".format(employee.basic_salary) if employee.basic_salary else 'غير محدد' }} ريال</span>
+                            </div>
+                            <div class="info-item">
+                                <label>بدل السكن:</label>
+                                <span>{{ "{:,.2f}".format(employee.housing_allowance) if employee.housing_allowance else 'غير محدد' }} ريال</span>
+                            </div>
+                            <div class="info-item">
+                                <label>بدل المواصلات:</label>
+                                <span>{{ "{:,.2f}".format(employee.transport_allowance) if employee.transport_allowance else 'غير محدد' }} ريال</span>
+                            </div>
+                            <div class="info-item">
+                                <label>إجمالي الراتب:</label>
+                                <span class="fw-bold text-success">
+                                    {% set total_salary = (employee.basic_salary or 0) + (employee.housing_allowance or 0) + (employee.transport_allowance or 0) %}
+                                    {{ "{:,.2f}".format(total_salary) }} ريال
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h6 class="text-primary mb-3"><i class="fas fa-university me-2"></i>البيانات المصرفية</h6>
+                            <div class="info-item">
+                                <label>اسم البنك:</label>
+                                <span>{{ employee.bank_name or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>رقم الحساب:</label>
+                                <span>{{ employee.bank_account or 'غير محدد' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>الآيبان:</label>
+                                <span>{{ employee.iban or 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.employee-details-card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.info-card {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0;
+    flex: 0 0 40%;
+}
+
+.info-item span {
+    color: #212529;
+    text-align: left;
+    flex: 1;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+}
+
+.nav-pills .nav-link.active {
+    background: none;
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+}
+
+.nav-pills .nav-link:hover {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+</style>
+{% endblock %}

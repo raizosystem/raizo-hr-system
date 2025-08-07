@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}إعدادات الإشعارات{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">إعدادات الإشعارات</h3>
+                </div>
+                <form method="POST">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>أنواع الإشعارات</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="employee_notifications" 
+                                           {{ 'checked' if settings.employee_notifications }}>
+                                    <label class="form-check-label">إشعارات الموظفين</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="attendance_notifications" 
+                                           {{ 'checked' if settings.attendance_notifications }}>
+                                    <label class="form-check-label">إشعارات الحضور والغياب</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="payroll_notifications" 
+                                           {{ 'checked' if settings.payroll_notifications }}>
+                                    <label class="form-check-label">إشعارات الرواتب</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_notifications" 
+                                           {{ 'checked' if settings.document_notifications }}>
+                                    <label class="form-check-label">إشعارات المستندات</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="system_notifications" 
+                                           {{ 'checked' if settings.system_notifications }}>
+                                    <label class="form-check-label">إشعارات النظام</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5>مستويات الأولوية</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="show_low_priority" 
+                                           {{ 'checked' if settings.show_low_priority }}>
+                                    <label class="form-check-label">أولوية منخفضة</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="show_normal_priority" 
+                                           {{ 'checked' if settings.show_normal_priority }}>
+                                    <label class="form-check-label">أولوية عادية</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="show_high_priority" 
+                                           {{ 'checked' if settings.show_high_priority }}>
+                                    <label class="form-check-label">أولوية عالية</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="show_urgent_priority" 
+                                           {{ 'checked' if settings.show_urgent_priority }}>
+                                    <label class="form-check-label">عاجل</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>إخفاء الإشعارات تلقائياً بعد (أيام)</label>
+                                    <input type="number" class="form-control" name="auto_dismiss_after_days" 
+                                           value="{{ settings.auto_dismiss_after_days }}" min="1" max="30">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>عدد الإشعارات المعروضة</label>
+                                    <input type="number" class="form-control" name="max_notifications_display" 
+                                           value="{{ settings.max_notifications_display }}" min="5" max="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                        <a href="{{ url_for('notifications') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> العودة للإشعارات
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

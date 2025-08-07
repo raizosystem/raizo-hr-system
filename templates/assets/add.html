@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة عهدة جديدة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-primary"><i class="fas fa-plus me-2"></i>إضافة عهدة جديدة</h2>
+                <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-box me-2"></i>بيانات العهدة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- المعلومات الأساسية -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>المعلومات الأساسية
+                                </h6>
+                            </div>
+                            
+                            <!-- رقم العهدة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.asset_id.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.asset_id(class="form-control") }}
+                                {% if form.asset_id.errors %}
+                                    <div class="text-danger">{{ form.asset_id.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- اسم العهدة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الفئة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.category.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.category(class="form-control", list="categoryList") }}
+                                <datalist id="categoryList">
+                                    <option value="أجهزة كمبيوتر">
+                                    <option value="أجهزة محمولة">
+                                    <option value="أثاث مكتبي">
+                                    <option value="معدات إلكترونية">
+                                    <option value="أدوات مكتبية">
+                                    <option value="مركبات">
+                                    <option value="معدات أمنية">
+                                    <option value="أخرى">
+                                </datalist>
+                                {% if form.category.errors %}
+                                    <div class="text-danger">{{ form.category.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- القيمة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.value.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.value(class="form-control", step="0.01") }}
+                                    <span class="input-group-text">ريال</span>
+                                </div>
+                                {% if form.value.errors %}
+                                    <div class="text-danger">{{ form.value.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الوصف -->
+                            <div class="col-12 mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="3", placeholder="وصف تفصيلي للعهدة...") }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger">{{ form.description.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- معلومات التخصيص -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user-check me-2"></i>معلومات التخصيص
+                                </h6>
+                            </div>
+                            
+                            <!-- الموظف المخصص -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.employee_id.label(class="form-label") }}
+                                {{ form.employee_id(class="form-select") }}
+                                {% if form.employee_id.errors %}
+                                    <div class="text-danger">{{ form.employee_id.errors[0] }}</div>
+                                {% endif %}
+                                <div class="form-text">اتركه فارغاً إذا لم تكن العهدة مخصصة لموظف معين</div>
+                            </div>
+                            
+                            <!-- تاريخ التخصيص -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.assigned_date.label(class="form-label") }}
+                                {{ form.assigned_date(class="form-control") }}
+                                {% if form.assigned_date.errors %}
+                                    <div class="text-danger">{{ form.assigned_date.errors[0] }}</div>
+                                {% endif %}
+                                <div class="form-text">يُملأ تلقائياً عند تخصيص العهدة لموظف</div>
+                            </div>
+                        </div>
+                        
+                        <!-- الحالة والملاحظات -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-cog me-2"></i>الحالة والملاحظات
+                                </h6>
+                            </div>
+                            
+                            <!-- الحالة الفنية -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.condition.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.condition(class="form-select") }}
+                                {% if form.condition.errors %}
+                                    <div class="text-danger">{{ form.condition.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- ملاحظات -->
+                            <div class="col-12 mb-3">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control", rows="3", placeholder="أي ملاحظات إضافية حول العهدة...") }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger">{{ form.notes.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الحفظ -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>إلغاء
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>حفظ العهدة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// تحسين معالجة النموذج
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const employeeSelect = document.getElementById('employee_id');
+    const assignedDateField = document.getElementById('assigned_date');
+    
+    // تعبئة تاريخ التخصيص تلقائياً
+    if (employeeSelect && assignedDateField) {
+        employeeSelect.addEventListener('change', function() {
+            if (this.value && this.value !== '') {
+                if (!assignedDateField.value) {
+                    const today = new Date().toISOString().split('T')[0];
+                    assignedDateField.value = today;
+                }
+            } else {
+                assignedDateField.value = '';
+            }
+        });
+    }
+    
+    // تحسين التحقق من النموذج
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const assetId = document.getElementById('asset_id')?.value?.trim();
+            const name = document.getElementById('name')?.value?.trim();
+            const category = document.getElementById('category')?.value?.trim();
+            const condition = document.getElementById('condition')?.value;
+            const value = document.getElementById('value')?.value;
+            
+            let errors = [];
+            
+            if (!assetId || assetId.length < 3) {
+                errors.push('رقم العهدة يجب أن يكون 3 أحرف على الأقل');
+            }
+            
+            if (!name || name.length < 2) {
+                errors.push('اسم العهدة يجب أن يكون حرفين على الأقل');
+            }
+            
+            if (!category) {
+                errors.push('الفئة مطلوبة');
+            }
+            
+            if (!condition) {
+                errors.push('حالة العهدة مطلوبة');
+            }
+            
+            if (value && parseFloat(value) < 0) {
+                errors.push('قيمة العهدة لا يمكن أن تكون سالبة');
+            }
+            
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert('يرجى تصحيح الأخطاء التالية:\n' + errors.join('\n'));
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
+<!-- إضافة هذا الكود بعد السطر 25 -->
+{% if form.errors %}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i>يرجى تصحيح الأخطاء التالية:</h6>
+            <ul class="mb-0">
+                {% for field, errors in form.errors.items() %}
+                    {% for error in errors %}
+                        <li>{{ getattr(form, field).label.text }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}

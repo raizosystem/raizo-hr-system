@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}إرسال إشعار{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">إرسال إشعار جديد</h3>
+                    <div class="card-tools">
+                        <a href="{{ url_for('notifications') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-right"></i> العودة للإشعارات
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.recipient_type.label(class="form-label") }}
+                                    {{ form.recipient_type(class="form-control", id="recipient_type") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" id="single_user_group" style="display: none;">
+                                    {{ form.recipient_user.label(class="form-label") }}
+                                    {{ form.recipient_user(class="form-control") }}
+                                </div>
+                                <div class="form-group" id="role_group" style="display: none;">
+                                    {{ form.recipient_role.label(class="form-label") }}
+                                    {{ form.recipient_role(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    {{ form.title.label(class="form-label") }}
+                                    {{ form.title(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.notification_type.label(class="form-label") }}
+                                    {{ form.notification_type(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.message.label(class="form-label") }}
+                            {{ form.message(class="form-control", rows="4") }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.priority.label(class="form-label") }}
+                                    {{ form.priority(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.action_url.label(class="form-label") }}
+                                    {{ form.action_url(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.action_text.label(class="form-label") }}
+                                    {{ form.action_text(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.expires_at.label(class="form-label") }}
+                                    {{ form.expires_at(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('notifications') }}" class="btn btn-secondary">إلغاء</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const recipientType = document.getElementById('recipient_type');
+    const singleUserGroup = document.getElementById('single_user_group');
+    const roleGroup = document.getElementById('role_group');
+    
+    function toggleRecipientFields() {
+        const value = recipientType.value;
+        
+        singleUserGroup.style.display = 'none';
+        roleGroup.style.display = 'none';
+        
+        if (value === 'single') {
+            singleUserGroup.style.display = 'block';
+        } else if (value === 'role') {
+            roleGroup.style.display = 'block';
+        }
+    }
+    
+    recipientType.addEventListener('change', toggleRecipientFields);
+    toggleRecipientFields(); // تشغيل عند تحميل الصفحة
+});
+</script>
+{% endblock %}

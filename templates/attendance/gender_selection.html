@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}الحضور والغياب - اختيار الجنس{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-clock"></i> الحضور والغياب</h3>
+                    <p class="mb-0">اختر الجنس لعرض البيانات</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('attendance_by_gender', gender='ذكر') }}" class="btn btn-outline-primary btn-lg w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 200px;">
+                                <i class="fas fa-male fa-4x mb-3"></i>
+                                <h4>الرجال</h4>
+                                <span class="badge bg-primary">{{ male_count }} موظف</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('attendance_by_gender', gender='أنثى') }}" class="btn btn-outline-danger btn-lg w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="min-height: 200px;">
+                                <i class="fas fa-female fa-4x mb-3"></i>
+                                <h4>النساء</h4>
+                                <span class="badge bg-danger">{{ female_count }} موظفة</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

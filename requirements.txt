@@ -1,0 +1,27 @@
+Flask==2.3.3
+Flask-Login==0.6.3
+Flask-WTF==1.1.1
+WTForms==3.0.1
+SQLAlchemy==2.0.21
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.3.7
+pandas==2.1.1
+openpyxl==3.1.2
+Pillow==10.0.1
+gunicorn==21.2.0
+google-api-python-client==2.103.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+schedule==1.2.0
+
+
+## 6. إنشاء ملف credentials.json:
+
+تحتاج إلى:
+1. الذهاب إلى [Google Cloud Console](https://console.cloud.google.com/)
+2. إنشاء مشروع جديد أو اختيار مشروع موجود
+3. تفعيل Google Drive API
+4. إنشاء OAuth 2.0 credentials
+5. تحميل ملف credentials.json ووضعه في مجلد المشروع
+
+## 7. إضافة المكتبات إلى requirements.txt:

@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة كشف راتب شامل - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave"></i> إضافة كشف راتب شامل</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="payrollForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- بيانات الموظف -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-user"></i> بيانات الموظف</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.employee_id.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.employee_id(class="form-select", id="employee_id") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.month.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.month(class="form-select") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.year.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.year(class="form-control") }}
+                                    </div>
+                                </div>
+                                <!-- عرض بيانات الموظف المحددة -->
+                                <div id="employee_details" class="mt-3" style="display: none;">
+                                    <div class="alert alert-light">
+                                        <div class="row">
+                                            <div class="col-md-3"><strong>رقم الهوية:</strong> <span id="emp_national_id"></span></div>
+                                            <div class="col-md-3"><strong>رقم الجوال:</strong> <span id="emp_phone"></span></div>
+                                            <div class="col-md-3"><strong>تاريخ المباشرة:</strong> <span id="emp_start_date"></span></div>
+                                            <div class="col-md-3"><strong>المسمى الوظيفي:</strong> <span id="emp_job_title"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- الفترة -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0"><i class="fas fa-calendar"></i> الفترة</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.period_from.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.period_from(class="form-control", id="period_from") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.period_to.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.period_to(class="form-control", id="period_to") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.period_days.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        {{ form.period_days(class="form-control", id="period_days", readonly=True) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- الحضور والغياب والانسحاب -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-white">
+                                <h5 class="mb-0"><i class="fas fa-calendar-check"></i> الحضور والغياب والانسحاب</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.present_days.label(class="form-label") }}
+                                        {{ form.present_days(class="form-control", id="present_days") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.absent_days.label(class="form-label") }}
+                                        {{ form.absent_days(class="form-control", id="absent_days") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.withdrawal_days.label(class="form-label") }}
+                                        {{ form.withdrawal_days(class="form-control", id="withdrawal_days") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- الراتب والعمل الإضافي -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-coins"></i> الراتب والعمل الإضافي</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.basic_salary.label(class="form-label") }}
+                                        <span class="text-danger">*</span>
+                                        <div class="input-group">
+                                            {{ form.basic_salary(class="form-control", id="basic_salary") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">الراتب اليومي</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="daily_salary" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">الراتب المستحق</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="due_salary" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.overtime_days.label(class="form-label") }}
+                                        {{ form.overtime_days(class="form-control", id="overtime_days") }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">مستحق العمل الإضافي</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="overtime_due" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">إجمالي الراتب</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="total_salary" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- البدلات -->
+                                <h6 class="mt-4 mb-3">البدلات</h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.housing_allowance.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.housing_allowance(class="form-control", id="housing_allowance") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.transport_allowance.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.transport_allowance(class="form-control", id="transport_allowance") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.other_allowances.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.other_allowances(class="form-control", id="other_allowances") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- المخالفات والحسميات -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0"><i class="fas fa-minus-circle"></i> المخالفات والحسميات</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        {{ form.advance_deduction.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.advance_deduction(class="form-control", id="advance_deduction") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        {{ form.violation_deduction.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.violation_deduction(class="form-control", id="violation_deduction") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">حسم الغياب</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="absence_deduction" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">حسم الانسحاب</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="withdrawal_deduction" readonly>
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- خصومات أخرى -->
+                                <h6 class="mt-4 mb-3">خصومات أخرى</h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.insurance_deduction.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.insurance_deduction(class="form-control", id="insurance_deduction") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.tax_deduction.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.tax_deduction(class="form-control", id="tax_deduction") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        {{ form.other_deductions.label(class="form-label") }}
+                                        <div class="input-group">
+                                            {{ form.other_deductions(class="form-control", id="other_deductions") }}
+                                            <span class="input-group-text">ريال</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning">
+                                            <h6>إجمالي الحسميات</h6>
+                                            <h4 id="total_deductions_display">0.00 ريال</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- صافي الراتب -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0"><i class="fas fa-calculator"></i> صافي الراتب</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="alert alert-success">
+                                            <h5>صافي الراتب</h5>
+                                            <h3 id="net_salary_display">0.00 ريال</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.notes.label(class="form-label") }}
+                                        {{ form.notes(class="form-control", rows="4", placeholder="أدخل أي ملاحظات إضافية...") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الحفظ -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('payroll') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> العودة
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> حفظ كشف الراتب
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// حساب الفترة تلقائياً
+document.getElementById('period_from').addEventListener('change', calculatePeriod);
+document.getElementById('period_to').addEventListener('change', calculatePeriod);
+
+function calculatePeriod() {
+    const fromDate = new Date(document.getElementById('period_from').value);
+    const toDate = new Date(document.getElementById('period_to').value);
+    
+    if (fromDate && toDate && toDate >= fromDate) {
+        const timeDiff = toDate.getTime() - fromDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+        document.getElementById('period_days').value = daysDiff;
+        calculateSalary();
+    }
+}
+
+// حساب الراتب تلقائياً
+const salaryInputs = ['basic_salary', 'present_days', 'absent_days', 'withdrawal_days', 'overtime_days', 
+                     'housing_allowance', 'transport_allowance', 'other_allowances',
+                     'advance_deduction', 'violation_deduction', 'insurance_deduction', 
+                     'tax_deduction', 'other_deductions'];
+
+salaryInputs.forEach(id => {
+    document.getElementById(id).addEventListener('input', calculateSalary);
+});
+
+function calculateSalary() {
+    const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
+    const presentDays = parseInt(document.getElementById('present_days').value) || 0;
+    const absentDays = parseInt(document.getElementById('absent_days').value) || 0;
+    const withdrawalDays = parseInt(document.getElementById('withdrawal_days').value) || 0;
+    const overtimeDays = parseFloat(document.getElementById('overtime_days').value) || 0;
+    
+    // حساب الراتب اليومي
+    const dailySalary = basicSalary / 30;
+    document.getElementById('daily_salary').value = dailySalary.toFixed(2);
+    
+    // حساب الراتب المستحق
+    const dueSalary = dailySalary * presentDays;
+    document.getElementById('due_salary').value = dueSalary.toFixed(2);
+    
+    // حساب مستحق العمل الإضافي
+    const overtimeDue = overtimeDays * dailySalary * 1.5;
+    document.getElementById('overtime_due').value = overtimeDue.toFixed(2);
+    
+    // حساب البدلات
+    const housingAllowance = parseFloat(document.getElementById('housing_allowance').value) || 0;
+    const transportAllowance = parseFloat(document.getElementById('transport_allowance').value) || 0;
+    const otherAllowances = parseFloat(document.getElementById('other_allowances').value) || 0;
+    
+    // حساب إجمالي الراتب
+    const totalSalary = dueSalary + overtimeDue + housingAllowance + transportAllowance + otherAllowances;
+    document.getElementById('total_salary').value = totalSalary.toFixed(2);
+    
+    // حساب الحسميات
+    const absenceDeduction = absentDays * dailySalary;
+    const withdrawalDeduction = withdrawalDays * dailySalary;
+    document.getElementById('absence_deduction').value = absenceDeduction.toFixed(2);
+    document.getElementById('withdrawal_deduction').value = withdrawalDeduction.toFixed(2);
+    
+    const advanceDeduction = parseFloat(document.getElementById('advance_deduction').value) || 0;
+    const violationDeduction = parseFloat(document.getElementById('violation_deduction').value) || 0;
+    const insuranceDeduction = parseFloat(document.getElementById('insurance_deduction').value) || 0;
+    const taxDeduction = parseFloat(document.getElementById('tax_deduction').value) || 0;
+    const otherDeductions = parseFloat(document.getElementById('other_deductions').value) || 0;
+    
+    // حساب إجمالي الحسميات
+    const totalDeductions = absenceDeduction + withdrawalDeduction + advanceDeduction + 
+                           violationDeduction + insuranceDeduction + taxDeduction + otherDeductions;
+    document.getElementById('total_deductions_display').textContent = totalDeductions.toFixed(2) + ' ريال';
+    
+    // حساب صافي الراتب
+    const netSalary = totalSalary - totalDeductions;
+    document.getElementById('net_salary_display').textContent = netSalary.toFixed(2) + ' ريال';
+}
+
+// تحميل بيانات الموظف عند الاختيار
+document.getElementById('employee_id').addEventListener('change', function() {
+    const employeeId = this.value;
+    if (employeeId) {
+        // هنا يمكن إضافة استدعاء AJAX لجلب بيانات الموظف
+        document.getElementById('employee_details').style.display = 'block';
+    } else {
+        document.getElementById('employee_details').style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

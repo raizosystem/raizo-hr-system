@@ -1,0 +1,929 @@
+{% extends "base.html" %}
+
+{% block title %}قائمة الموظفين - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-users"></i> قائمة الموظفين</h1>
+        <p class="mb-0">إدارة وعرض بيانات الموظفين</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('add_employee') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> إضافة موظف جديد
+        </a>
+        <a href="{{ url_for('export_employees') }}" class="btn btn-info">
+            <i class="fas fa-file-excel"></i> تصدير إكسل
+        </a>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
+            <i class="fas fa-file-import"></i> استيراد البيانات
+        </button>
+    </div>
+</div>
+
+<!-- نموذج البحث المتقدم -->
+<div class="card mb-4 advanced-search-card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#searchForm" aria-expanded="false">
+                <i class="fas fa-search"></i> البحث المتقدم
+            </button>
+        </h5>
+    </div>
+    <div class="collapse" id="searchForm">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('employees') }}">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="search_name" class="form-label">الاسم</label>
+                        <input type="text" class="form-control" id="search_name" name="search_name" 
+                               value="{{ search_name }}" placeholder="البحث بالاسم العربي أو الإنجليزي">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_national_id" class="form-label">رقم الهوية</label>
+                        <input type="text" class="form-control" id="search_national_id" name="search_national_id" 
+                               value="{{ search_national_id }}" placeholder="رقم الهوية الوطنية">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_employee_id" class="form-label">الرقم الوظيفي</label>
+                        <input type="number" class="form-control" id="search_employee_id" name="search_employee_id" 
+                               value="{{ search_employee_id }}" placeholder="رقم الموظف">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_department" class="form-label">القسم</label>
+                        <select class="form-control" id="search_department" name="search_department">
+                            <option value="">جميع الأقسام</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept }}" {% if search_department == dept %}selected{% endif %}>{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="search_job_title" class="form-label">المسمى الوظيفي</label>
+                        <select class="form-control" id="search_job_title" name="search_job_title">
+                            <option value="">جميع المسميات</option>
+                            {% for title in job_titles %}
+                                <option value="{{ title }}" {% if search_job_title == title %}selected{% endif %}>{{ title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_phone" class="form-label">رقم الهاتف</label>
+                        <input type="text" class="form-control" id="search_phone" name="search_phone" 
+                               value="{{ search_phone }}" placeholder="رقم الهاتف">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_email" class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" id="search_email" name="search_email" 
+                               value="{{ search_email }}" placeholder="البريد الإلكتروني">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_gender" class="form-label">الجنس</label>
+                        <select class="form-control" id="search_gender" name="search_gender">
+                            <option value="">الكل</option>
+                            <option value="ذكر" {% if search_gender == 'ذكر' %}selected{% endif %}>ذكر</option>
+                            <option value="أنثى" {% if search_gender == 'أنثى' %}selected{% endif %}>أنثى</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="search_nationality" class="form-label">الجنسية</label>
+                        <select class="form-control" id="search_nationality" name="search_nationality">
+                            <option value="">جميع الجنسيات</option>
+                            {% for nat in nationalities %}
+                                <option value="{{ nat }}" {% if search_nationality == nat %}selected{% endif %}>{{ nat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_contract_type" class="form-label">نوع العقد</label>
+                        <select class="form-control" id="search_contract_type" name="search_contract_type">
+                            <option value="">جميع الأنواع</option>
+                            <option value="دائم" {% if search_contract_type == 'دائم' %}selected{% endif %}>دائم</option>
+                            <option value="مؤقت" {% if search_contract_type == 'مؤقت' %}selected{% endif %}>مؤقت</option>
+                            <option value="تدريب" {% if search_contract_type == 'تدريب' %}selected{% endif %}>تدريب</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_employee_type" class="form-label">نوع الموظف</label>
+                        <select class="form-control" id="search_employee_type" name="search_employee_type">
+                            <option value="">جميع الأنواع</option>
+                            <option value="دوام كامل" {% if search_employee_type == 'دوام كامل' %}selected{% endif %}>دوام كامل</option>
+                            <option value="دوام جزئي" {% if search_employee_type == 'دوام جزئي' %}selected{% endif %}>دوام جزئي</option>
+                            <option value="مقاول" {% if search_employee_type == 'مقاول' %}selected{% endif %}>مقاول</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <!-- مساحة فارغة للتوازن -->
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="search_date_from" class="form-label">تاريخ التعيين من</label>
+                        <input type="date" class="form-control" id="search_date_from" name="search_date_from" value="{{ date_from }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="search_date_to" class="form-label">تاريخ التعيين إلى</label>
+                        <input type="date" class="form-control" id="search_date_to" name="search_date_to" value="{{ date_to }}">
+                    </div>
+                    <div class="col-md-6 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                        <a href="{{ url_for('employees') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> مسح الفلاتر
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal لاستيراد البيانات -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">استيراد بيانات الموظفين من Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('import_employees') }}" method="POST" enctype="multipart/form-data" id="importForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">اختر ملف Excel</label>
+                        <input type="file" class="class="form-control" id="file" name="file" accept=".xlsx,.xls" required>
+                        <div class="form-text">يجب أن يحتوي الملف على الأعمدة التالية على الأقل: الاسم بالعربية، رقم الهوية</div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> متطلبات الملف:</h6>
+                        <ul class="mb-0">
+                            <li><strong>الأعمدة الإجبارية:</strong> الاسم بالعربية، رقم الهوية</li>
+                            <li><strong>الأعمدة الاختيارية:</strong> الاسم بالإنجليزية، تاريخ الميلاد، الجنسية، رقم الهاتف، البريد الإلكتروني، الراتب الأساسي، المسمى الوظيفي، القسم، وغيرها</li>
+                            <li><strong>تنسيق التواريخ:</strong> يفضل استخدام تنسيق YYYY-MM-DD أو DD/MM/YYYY</li>
+                            <li><strong>الأرقام:</strong> يجب أن تكون الأرقام بدون فواصل أو رموز خاصة</li>
+                            <li><strong>أرقام الهوية:</strong> يجب أن تكون فريدة وغير مكررة</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> تنبيهات مهمة:</h6>
+                        <ul class="mb-0">
+                            <li>سيتم تجاهل الصفوف التي تحتوي على أرقام هوية مكررة</li>
+                            <li>سيتم تعيين قيم افتراضية للحقول الفارغة</li>
+                            <li>تأكد من صحة البيانات قبل الاستيراد</li>
+                            <li>يُنصح بعمل نسخة احتياطية قبل الاستيراد</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="importBtn">
+                        <i class="fas fa-upload"></i> استيراد البيانات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// إضافة تحقق من الملف قبل الإرسال
+document.getElementById('importForm').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('file');
+    const importBtn = document.getElementById('importBtn');
+    
+    if (!fileInput.files.length) {
+        e.preventDefault();
+        alert('يرجى اختيار ملف Excel أولاً');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const allowedTypes = ['.xlsx', '.xls'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!allowedTypes.includes(fileExtension)) {
+        e.preventDefault();
+        alert('يجب أن يكون الملف من نوع Excel (.xlsx أو .xls)');
+        return;
+    }
+    
+    // تغيير نص الزر أثناء المعالجة
+    importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاستيراد...';
+    importBtn.disabled = true;
+});
+</script>
+
+<!-- إحصائيات سريعة -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ employees.total }}</h4>
+                        <p class="mb-0">إجمالي الموظفين</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ employees.items|length }}</h4>
+                        <p class="mb-0">في هذه الصفحة</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ employees.page }}</h4>
+                        <p class="mb-0">الصفحة الحالية</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ employees.pages }}</h4>
+                        <p class="mb-0">إجمالي الصفحات</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-copy fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- جدول الموظفين -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-table"></i> بيانات الموظفين</h5>
+    </div>
+    <div class="card-body">
+        {% if employees.items %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>الرقم الوظيفي</th>
+                        <th>اسم الموظف بالعربي</th>
+                        <th>رقم الهوية</th>
+                        <th>رقم الجوال</th>
+                        <th>القسم</th>
+                        <th>المسمى الوظيفي</th>
+                        <th>حالة الموظف</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees.items %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary">{{ employee.employee_id }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if employee.employee_photo %}
+                                    <img src="{{ url_for('static', filename='uploads/photos/' + employee.employee_photo) }}" 
+                                         alt="صورة الموظف" class="rounded-circle me-2" 
+                                         style="width: 40px; height: 40px; object-fit: cover;"
+                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2Yzc1N2QiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9IndoaXRlIj4KPHA+VXNlcjwvcD4KPC9zdmc+Cjwvc3ZnPgo=';">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <strong>{{ employee.name_arabic }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ employee.national_id }}</td>
+                        <td>
+                            <a href="tel:{{ employee.phone }}" class="text-decoration-none">
+                                <i class="fas fa-phone"></i> {{ employee.phone }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ employee.department }}</span>
+                        </td>
+                        <td>{{ employee.job_title }}</td>
+                        <td>
+                            {% if employee.status == 'active' %}
+                                <span class="badge bg-success">نشط</span>
+                            {% elif employee.status == 'inactive' %}
+                                <span class="badge bg-danger">غير نشط</span>
+                            {% elif employee.status == 'suspended' %}
+                                <span class="badge bg-warning">موقوف</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ employee.status }}</span>
+                            {% endif %}
+                        </td>
+                        <!-- في قسم الأزرار، استبدال الأزرار الموجودة -->
+                        <td>
+                            <div class="btn-group" role="group">
+                                {% if can_view('employees') %}
+                                <a href="{{ url_for('view_employee', id=employee.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i> عرض
+                                </a>
+                                {% endif %}
+                                
+                                {% if can_edit('employees') %}
+                                <a href="{{ url_for('edit_employee', id=employee.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </a>
+                                {% endif %}
+                                
+                                {% if can_delete('employees') %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="confirmDelete({{ employee.id }}, '{{ employee.full_name }}')"> 
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                                {% endif %}
+                                
+                                <a href="{{ url_for('print_employee', id=employee.id) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-print"></i> طباعة
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Employee Details Modals -->
+{% for employee in employees.items %}
+<div class="modal fade" id="viewModal{{ employee.id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content employee-modal">
+            <!-- Modal Header with Gradient -->
+            <div class="modal-header employee-modal-header">
+                <div class="d-flex align-items-center">
+                    <div class="employee-avatar-container me-3">
+                        {% if employee.employee_photo %}
+                        <img src="{{ url_for('static', filename='uploads/photos/' + employee.employee_photo) }}" 
+                             alt="صورة الموظف" class="employee-avatar"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="employee-avatar-placeholder" style="display: none;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% else %}
+                        <div class="employee-avatar-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="employee-header-info">
+                        <h4 class="employee-name mb-1">{{ employee.name_arabic }}</h4>
+                        <p class="employee-name-en mb-1">{{ employee.name_english or 'غير محدد' }}</p>
+                        <div class="employee-badges">
+                            <span class="badge employee-id-badge">{{ employee.employee_id }}</span>
+                            <span class="badge employee-dept-badge">{{ employee.department }}</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <!-- Modal Body with Enhanced Design -->
+            <div class="modal-body employee-modal-body">
+                <!-- Quick Info Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="quick-info-card salary-card">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="quick-info-content">
+                                <span class="quick-info-label">الراتب</span>
+                                <span class="quick-info-value">{{ employee.salary }} ريال</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="quick-info-card job-card">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="quick-info-content">
+                                <span class="quick-info-label">المسمى الوظيفي</span>
+                                <span class="quick-info-value">{{ employee.job_title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="quick-info-card phone-card">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="quick-info-content">
+                                <span class="quick-info-label">رقم الجوال</span>
+                                <span class="quick-info-value">{{ employee.phone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="quick-info-card status-card">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="quick-info-content">
+                                <span class="quick-info-label">الحالة</span>
+                                <span class="quick-info-value status-{{ employee.status }}">
+                                    {% if employee.status == 'active' %}نشط
+                                    {% elif employee.status == 'inactive' %}غير نشط
+                                    {% elif employee.status == 'suspended' %}موقوف
+                                    {% else %}{{ employee.status or 'غير محدد' }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    
+                        <!-- Employee Details Tabs -->
+                        <ul class="nav nav-tabs mb-3" id="employeeTabs{{ employee.id }}" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="personal-tab-{{ employee.id }}" data-bs-toggle="tab" 
+                                        data-bs-target="#personal{{ employee.id }}" type="button" role="tab">
+                                    <i class="fas fa-user me-2"></i>البيانات الشخصية
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="contact-tab-{{ employee.id }}" data-bs-toggle="tab" 
+                                        data-bs-target="#contact{{ employee.id }}" type="button" role="tab">
+                                    <i class="fas fa-phone me-2"></i>بيانات التواصل
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="work-tab-{{ employee.id }}" data-bs-toggle="tab" 
+                                        data-bs-target="#work{{ employee.id }}" type="button" role="tab">
+                                    <i class="fas fa-briefcase me-2"></i>بيانات العمل
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="financial-tab-{{ employee.id }}" data-bs-toggle="tab" 
+                                        data-bs-target="#financial{{ employee.id }}" type="button" role="tab">
+                                    <i class="fas fa-university me-2"></i>البيانات المالية
+                                </button>
+                            </li>
+                        </ul>
+                    
+                        <div class="tab-content" id="employeeTabContent{{ employee.id }}">
+                            <!-- Personal Information Tab -->
+                            <div class="tab-pane fade show active" id="personal{{ employee.id }}" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-id-card me-2"></i>بيانات الهوية</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم الهوية:</small>
+                                                    <div class="fw-bold">{{ employee.national_id }}</div>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <small class="text-muted">صلاحية الهوية:</small>
+                                                    <div>
+                                                        <span class="badge bg-{{ 'success' if employee.id_validity == 'سارية' else 'danger' }}">
+                                                            {{ employee.id_validity or 'غير محدد' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {% if employee.id_expiry_date %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">تاريخ انتهاء الهوية:</small>
+                                                    <div class="fw-bold">{{ employee.id_expiry_date.strftime('%Y-%m-%d') }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.id_issuer %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">جهة الإصدار:</small>
+                                                    <div class="fw-bold">{{ employee.id_issuer }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-birthday-cake me-2"></i>البيانات الشخصية</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if employee.birth_date %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">تاريخ الميلاد:</small>
+                                                    <div class="fw-bold">{{ employee.birth_date.strftime('%Y-%m-%d') }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.age %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">العمر:</small>
+                                                    <div class="fw-bold">{{ employee.age }} سنة</div>
+                                                </div>
+                                                {% endif %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الجنسية:</small>
+                                                    <div class="fw-bold">{{ employee.nationality }}</div>
+                                                </div>
+                                                {% if employee.birth_place %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">مكان الميلاد:</small>
+                                                    <div class="fw-bold">{{ employee.birth_place }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.gender %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الجنس:</small>
+                                                    <div class="fw-bold">{{ employee.gender }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.marital_status %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الحالة الاجتماعية:</small>
+                                                    <div class="fw-bold">{{ employee.marital_status }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Contact Information Tab -->
+                            <div class="tab-pane fade" id="contact{{ employee.id }}" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-phone me-2"></i>أرقام الهواتف</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم الجوال الأساسي:</small>
+                                                    <div class="fw-bold">
+                                                        <a href="tel:{{ employee.phone }}" class="text-decoration-none">{{ employee.phone }}</a>
+                                                    </div>
+                                                </div>
+                                                {% if employee.additional_phone %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم جوال إضافي:</small>
+                                                    <div class="fw-bold">
+                                                        <a href="tel:{{ employee.additional_phone }}" class="text-decoration-none">{{ employee.additional_phone }}</a>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.emergency_phone %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم الطوارئ:</small>
+                                                    <div class="fw-bold">
+                                                        <a href="tel:{{ employee.emergency_phone }}" class="text-decoration-none">{{ employee.emergency_phone }}</a>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-envelope me-2"></i>البريد والعنوان</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if employee.email %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">البريد الإلكتروني:</small>
+                                                    <div class="fw-bold">
+                                                        <a href="mailto:{{ employee.email }}" class="text-decoration-none">{{ employee.email }}</a>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.address %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">عنوان السكن:</small>
+                                                    <div class="fw-bold">{{ employee.address }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.emergency_contact %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">جهة الاتصال في الطوارئ:</small>
+                                                    <div class="fw-bold">{{ employee.emergency_contact }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Work Information Tab -->
+                            <div class="tab-pane fade" id="work{{ employee.id }}" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-file-contract me-2"></i>بيانات العقد</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-2">
+                                                    <small class="text-muted">نوع العقد:</small>
+                                                    <div>
+                                                        <span class="badge bg-primary">{{ employee.contract_type or 'غير محدد' }}</span>
+                                                    </div>
+                                                </div>
+                                                {% if employee.contract_duration %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">مدة العقد:</small>
+                                                    <div class="fw-bold">{{ employee.contract_duration }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.contract_signing_date %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">تاريخ توقيع العقد:</small>
+                                                    <div class="fw-bold">{{ employee.contract_signing_date.strftime('%Y-%m-%d') }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.contract_end_date %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">تاريخ انتهاء العقد:</small>
+                                                    <div class="fw-bold">{{ employee.contract_end_date.strftime('%Y-%m-%d') }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.start_work_date %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">تاريخ المباشرة:</small>
+                                                    <div class="fw-bold">{{ employee.start_work_date.strftime('%Y-%m-%d') }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-building me-2"></i>بيانات مكان العمل</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-2">
+                                                    <small class="text-muted">نوع الموظف:</small>
+                                                    <div>
+                                                        <span class="badge bg-info">{{ employee.employee_type or 'غير محدد' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الحالة:</small>
+                                                    <div>
+                                                        {% if employee.status == 'active' %}
+                                                            <span class="badge bg-success">نشط</span>
+                                                        {% elif employee.status == 'inactive' %}
+                                                            <span class="badge bg-danger">غير نشط</span>
+                                                        {% elif employee.status == 'suspended' %}
+                                                            <span class="badge bg-warning">موقوف</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">{{ employee.status or 'غير محدد' }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% if employee.operating_company %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الشركة المشغلة:</small>
+                                                    <div class="fw-bold">{{ employee.operating_company }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.center %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">المركز:</small>
+                                                    <div class="fw-bold">{{ employee.center }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.square %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">المربع:</small>
+                                                    <div class="fw-bold">{{ employee.square }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Financial Information Tab -->
+                            <div class="tab-pane fade" id="financial{{ employee.id }}" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-university me-2"></i>البيانات المصرفية</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if employee.bank_type %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">البنك الأساسي:</small>
+                                                    <div class="fw-bold">{{ employee.bank_type }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.iban_number %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم الآيبان:</small>
+                                                    <div class="fw-bold font-monospace">{{ employee.iban_number }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.additional_bank %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">البنك الإضافي:</small>
+                                                    <div class="fw-bold">{{ employee.additional_bank }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.additional_iban %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">الآيبان الإضافي:</small>
+                                                    <div class="fw-bold font-monospace">{{ employee.additional_iban }}</div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-primary"><i class="fas fa-user-check me-2"></i>بيانات المستفيد</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if employee.beneficiary_name %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">اسم المستفيد:</small>
+                                                    <div class="fw-bold">{{ employee.beneficiary_name }}</div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.beneficiary_phone %}
+                                                <div class="mb-2">
+                                                    <small class="text-muted">رقم جوال المستفيد:</small>
+                                                    <div class="fw-bold">
+                                                        <a href="tel:{{ employee.beneficiary_phone }}" class="text-decoration-none">{{ employee.beneficiary_phone }}</a>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if employee.iban_certificate %}
+                                                <div class="mt-3">
+                                                    <a href="{{ url_for('static', filename='uploads/documents/' + employee.iban_certificate) }}" 
+                                                       target="_blank" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-download me-2"></i>تحميل شهادة الآيبان
+                                                    </a>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إغلاق
+                </button>
+                <a href="{{ url_for('edit_employee', id=employee.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>تعديل البيانات
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if employees.pages > 1 %}
+        <nav aria-label="تنقل بين الصفحات">
+            <ul class="pagination justify-content-center">
+                {% if employees.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('employees', page=employees.prev_num) }}">
+                        <i class="fas fa-chevron-right"></i> السابق
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in employees.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != employees.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('employees', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if employees.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('employees', page=employees.next_num) }}">
+                        التالي <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">لا توجد بيانات موظفين</h4>
+            <p class="text-muted">ابدأ بإضافة موظف جديد للنظام</p>
+            <a href="{{ url_for('add_employee') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> إضافة موظف جديد
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(employeeId, employeeName) {
+    if (confirm('هل أنت متأكد من حذف الموظف: ' + employeeName + '؟\nهذا الإجراء لا يمكن التراجع عنه.')) {
+        // الحصول على CSRF token من meta tag
+        const csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+        
+        fetch('/employees/delete/' + employeeId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  // إضافة CSRF token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء حذف الموظف: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حذف الموظف');
+        });
+    }
+}
+
+function printEmployee(employeeId, employeeName) {
+    // فتح نافذة جديدة للطباعة
+    const printWindow = window.open('/employees/print/' + employeeId, '_blank', 'width=800,height=600');
+    
+    // التأكد من تحميل المحتوى قبل الطباعة
+    printWindow.onload = function() {
+        printWindow.print();
+    };
+}
+</script>
+{% endblock %}

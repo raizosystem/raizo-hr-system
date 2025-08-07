@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}تسجيل حضور - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-plus"></i> تسجيل حضور جديد</h1>
+    <p class="mb-0">إضافة سجل حضور للموظفين</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> بيانات الحضور</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.employee_id.label(class="form-label") }}
+                                {{ form.employee_id(class="form-select") }}
+                                {% if form.employee_id.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.employee_id.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.date.label(class="form-label") }}
+                                {{ form.date(class="form-control") }}
+                                {% if form.date.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.date.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.check_in.label(class="form-label") }}
+                                {{ form.check_in(class="form-control") }}
+                                {% if form.check_in.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.check_in.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.check_out.label(class="form-label") }}
+                                {{ form.check_out(class="form-control") }}
+                                {% if form.check_out.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.check_out.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.break_start.label(class="form-label") }}
+                                {{ form.break_start(class="form-control") }}
+                                {% if form.break_start.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.break_start.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.break_end.label(class="form-label") }}
+                                {{ form.break_end(class="form-control") }}
+                                {% if form.break_end.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.break_end.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.status.label(class="form-label") }}
+                                {{ form.status(class="form-select") }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.status.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control", rows="3") }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.notes.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('attendance') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left"></i> رجوع
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- نصائح مفيدة -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6><i class="fas fa-lightbulb"></i> نصائح مفيدة</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>يمكنك ترك وقت الخروج فارغاً إذا لم ينته الموظف من العمل بعد</li>
+                    <li>أوقات الاستراحة اختيارية ويتم خصمها من إجمالي ساعات العمل</li>
+                    <li>استخدم حقل الملاحظات لتسجيل أي معلومات إضافية</li>
+                    <li>تأكد من اختيار الحالة المناسبة للموظف</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// تحديد الوقت الحالي تلقائياً
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const timeString = now.toTimeString().slice(0, 5);
+    
+    // إذا كان وقت الدخول فارغاً، املأه بالوقت الحالي
+    const checkInField = document.getElementById('check_in');
+    if (checkInField && !checkInField.value) {
+        checkInField.value = timeString;
+    }
+});
+
+// تحديث الحالة تلقائياً بناءً على الوقت
+function updateStatusBasedOnTime() {
+    const checkInField = document.getElementById('check_in');
+    const statusField = document.getElementById('status');
+    
+    if (checkInField && statusField && checkInField.value) {
+        const checkInTime = new Date('2000-01-01 ' + checkInField.value);
+        const workStartTime = new Date('2000-01-01 08:00'); // 8:00 AM
+        
+        if (checkInTime > workStartTime) {
+            statusField.value = 'late';
+        } else {
+            statusField.value = 'present';
+        }
+    }
+}
+
+// ربط الحدث بحقل وقت الدخول
+document.getElementById('check_in').addEventListener('change', updateStatusBasedOnTime);
+</script>
+{% endblock %}

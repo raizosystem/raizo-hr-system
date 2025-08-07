@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل كشف الراتب - نظام رايزو للموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> تعديل كشف الراتب</h1>
+    <p class="mb-0">تعديل بيانات كشف راتب الموظف</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.employee_id.label(class="form-label") }}
+                        {{ form.employee_id(class="form-control") }}
+                        {% if form.employee_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.employee_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        {{ form.month.label(class="form-label") }}
+                        {{ form.month(class="form-control") }}
+                        {% if form.month.errors %}
+                            <div class="text-danger">
+                                {% for error in form.month.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        {{ form.year.label(class="form-label") }}
+                        {{ form.year(class="form-control") }}
+                        {% if form.year.errors %}
+                            <div class="text-danger">
+                                {% for error in form.year.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mt-4 mb-3">مكونات الراتب</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.basic_salary.label(class="form-label") }}
+                        {{ form.basic_salary(class="form-control") }}
+                        {% if form.basic_salary.errors %}
+                            <div class="text-danger">
+                                {% for error in form.basic_salary.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-control") }}
+                        {% if form.status.errors %}
+                            <div class="text-danger">
+                                {% for error in form.status.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.housing_allowance.label(class="form-label") }}
+                        {{ form.housing_allowance(class="form-control") }}
+                        {% if form.housing_allowance.errors %}
+                            <div class="text-danger">
+                                {% for error in form.housing_allowance.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.transport_allowance.label(class="form-label") }}
+                        {{ form.transport_allowance(class="form-control") }}
+                        {% if form.transport_allowance.errors %}
+                            <div class="text-danger">
+                                {% for error in form.transport_allowance.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.other_allowances.label(class="form-label") }}
+                        {{ form.other_allowances(class="form-control") }}
+                        {% if form.other_allowances.errors %}
+                            <div class="text-danger">
+                                {% for error in form.other_allowances.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mt-4 mb-3">الخصومات</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.insurance_deduction.label(class="form-label") }}
+                        {{ form.insurance_deduction(class="form-control") }}
+                        {% if form.insurance_deduction.errors %}
+                            <div class="text-danger">
+                                {% for error in form.insurance_deduction.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.tax_deduction.label(class="form-label") }}
+                        {{ form.tax_deduction(class="form-control") }}
+                        {% if form.tax_deduction.errors %}
+                            <div class="text-danger">
+                                {% for error in form.tax_deduction.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.other_deductions.label(class="form-label") }}
+                        {{ form.other_deductions(class="form-control") }}
+                        {% if form.other_deductions.errors %}
+                            <div class="text-danger">
+                                {% for error in form.other_deductions.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mt-4 mb-3">ساعات العمل</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.regular_hours.label(class="form-label") }}
+                        {{ form.regular_hours(class="form-control") }}
+                        {% if form.regular_hours.errors %}
+                            <div class="text-danger">
+                                {% for error in form.regular_hours.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.overtime_hours.label(class="form-label") }}
+                        {{ form.overtime_hours(class="form-control") }}
+                        {% if form.overtime_hours.errors %}
+                            <div class="text-danger">
+                                {% for error in form.overtime_hours.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        {{ form.overtime_rate.label(class="form-label") }}
+                        {{ form.overtime_rate(class="form-control") }}
+                        {% if form.overtime_rate.errors %}
+                            <div class="text-danger">
+                                {% for error in form.overtime_rate.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+                <a href="{{ url_for('payroll') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

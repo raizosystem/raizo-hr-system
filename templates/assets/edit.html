@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل العهدة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-primary"><i class="fas fa-edit me-2"></i>تعديل العهدة</h2>
+                <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0"><i class="fas fa-box me-2"></i>تعديل بيانات العهدة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- المعلومات الأساسية -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>المعلومات الأساسية
+                                </h6>
+                            </div>
+                            
+                            <!-- رقم العهدة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.asset_id.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.asset_id(class="form-control") }}
+                                {% if form.asset_id.errors %}
+                                    <div class="text-danger">{{ form.asset_id.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- اسم العهدة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الفئة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.category.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.category(class="form-control") }}
+                                {% if form.category.errors %}
+                                    <div class="text-danger">{{ form.category.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- القيمة -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.value.label(class="form-label") }}
+                                {{ form.value(class="form-control") }}
+                                {% if form.value.errors %}
+                                    <div class="text-danger">{{ form.value.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الوصف -->
+                            <div class="col-12 mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="3") }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger">{{ form.description.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- معلومات التخصيص -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user me-2"></i>معلومات التخصيص
+                                </h6>
+                            </div>
+                            
+                            <!-- الموظف المخصص له -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.employee_id.label(class="form-label") }}
+                                {{ form.employee_id(class="form-select") }}
+                                {% if form.employee_id.errors %}
+                                    <div class="text-danger">{{ form.employee_id.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- تاريخ التخصيص -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.assigned_date.label(class="form-label") }}
+                                {{ form.assigned_date(class="form-control") }}
+                                {% if form.assigned_date.errors %}
+                                    <div class="text-danger">{{ form.assigned_date.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الحالة الفنية -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.condition.label(class="form-label") }}
+                                <span class="text-danger">*</span>
+                                {{ form.condition(class="form-select") }}
+                                {% if form.condition.errors %}
+                                    <div class="text-danger">{{ form.condition.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- الملاحظات -->
+                            <div class="col-12 mb-3">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control", rows="3") }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger">{{ form.notes.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار الحفظ -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>إلغاء
+                                    </a>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>حفظ التعديلات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

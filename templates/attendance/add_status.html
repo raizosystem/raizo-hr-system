@@ -1,0 +1,622 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<!-- تأكد من وجود Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<!-- تأكد من وجود jQuery و Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block title %}إضافة حالة الحضور{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">إضافة حالة الحضور</h3>
+                </div>
+                <div class="card-body">
+                    <!-- فلاتر البحث -->
+                    <form method="GET" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>التاريخ:</label>
+                                <input type="date" name="date" class="form-control" value="{{ request.args.get('date', today) }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label>القسم:</label>
+                                <select name="department" class="form-control">
+                                    <option value="">جميع الأقسام</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept }}" {{ 'selected' if request.args.get('department') == dept }}>{{ dept }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>الوردية:</label>
+                                <select name="shift" class="form-control">
+                                    <option value="">جميع الورديات</option>
+                                    {% for shift in shifts %}
+                                    <option value="{{ shift }}" {{ 'selected' if request.args.get('shift') == shift }}>{{ shift }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary form-control">بحث</button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <input type="text" name="search" class="form-control" placeholder="البحث بالرقم الوظيفي، الاسم، رقم الهوية، أو رقم الجوال" value="{{ request.args.get('search', '') }}">
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- جدول الموظفين -->
+                    <form id="attendanceForm" method="POST" action="{{ url_for('save_attendance_status') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="selected_date" value="{{ request.args.get('date', today) }}">
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>الرقم الوظيفي</th>
+                                        <th>الاسم</th>
+                                        <th>الجنس</th>
+                                        <th>القسم</th>
+                                        <th>الوردية</th>
+                                        <th>الإجراء</th>
+                                        <th>الحالة</th>
+                                        <th>حالة البيانات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employee in employees %}
+                                    <tr id="employee-{{ employee.id }}">
+                                        <td>{{ employee.employee_id }}</td>
+                                        <td>{{ employee.full_name }}</td>
+                                        <td>{{ employee.gender }}</td>
+                                        <td>{{ employee.department }}</td>
+                                        <td>{{ employee.work_shift }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="action-btn-present" onclick="setStatus({{ employee.id }}, 'present')">حاضر</button>
+                                                <button type="button" class="action-btn-absent" onclick="setStatus({{ employee.id }}, 'absent')">غائب</button>
+                                                <button type="button" class="action-btn-withdrawn" onclick="setStatus({{ employee.id }}, 'withdrawn')">منسحب</button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span id="status-{{ employee.id }}" class="attendance-status-badge badge-not-set">لم يحدد</span>
+                                        </td>
+                                        <td>
+                                            <span id="completeness-{{ employee.id }}" class="attendance-status-badge badge-incomplete">غير مكتملة</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">حفظ جميع الحالات</button>
+                            <a href="{{ url_for('attendance') }}" class="btn btn-secondary">إلغاء</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تفاصيل الحالة -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تفاصيل حالة الموظف</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="statusDetailsForm">
+                    <input type="hidden" id="employeeId" name="employee_id">
+                    <input type="hidden" id="statusType" name="status">
+                    
+                    <!-- معلومات الموظف -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label>الرقم الوظيفي:</label>
+                            <input type="text" id="empId" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>الاسم:</label>
+                            <input type="text" id="empName" class="form-control" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label>القسم:</label>
+                            <input type="text" id="empDept" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>التاريخ:</label>
+                            <input type="date" id="empDate" class="form-control" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- أوقات العمل -->
+                    <div id="timeSection">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label>وقت الدخول:</label>
+                                <input type="time" id="checkIn" name="check_in" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label>وقت الخروج:</label>
+                                <input type="time" id="checkOut" name="check_out" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم المحضر والبديل -->
+                    <div id="reportSection" style="display: none;">
+                        <div class="mb-3">
+                            <label>أرفق المحضر (اختياري):</label>
+                            <input type="file" id="reportFile" name="report_file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>هل تم توفير البديل؟</label>
+                            <div>
+                                <input type="radio" id="substituteYes" name="has_substitute" value="yes">
+                                <label for="substituteYes">نعم</label>
+                                <input type="radio" id="substituteNo" name="has_substitute" value="no" checked>
+                                <label for="substituteNo">لا</label>
+                            </div>
+                        </div>
+                        
+                        <div id="substituteSection" style="display: none;">
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <label>البحث عن البديل:</label>
+                                    <input type="text" id="substituteSearch" class="form-control" placeholder="البحث بالرقم الوظيفي، الاسم، رقم الهوية، أو رقم الجوال">
+                                </div>
+                                <div class="col-md-4">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-info form-control" onclick="searchSubstitute()">بحث</button>
+                                </div>
+                            </div>
+                            
+                            <div id="substituteResults"></div>
+                            <input type="hidden" id="selectedSubstitute" name="substitute_id">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label>ملاحظات:</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveStatus()">حفظ</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// متغير لحفظ بيانات الحضور
+let attendanceData = {};
+
+// دالة تعيين الحالة وفتح النافذة المنبثقة
+function setStatus(employeeId, status) {
+    try {
+        // البحث عن صف الموظف
+        const row = document.querySelector(`tr[id="employee-${employeeId}"]`);
+        if (!row) {
+            console.error(`لا يمكن العثور على صف الموظف ${employeeId}`);
+            alert(`خطأ: لا يمكن العثور على بيانات الموظف`);
+            return;
+        }
+        
+        // استخراج بيانات الموظف من الجدول
+        const cells = row.querySelectorAll('td');
+        const empId = cells[0]?.textContent?.trim() || '';
+        const empName = cells[1]?.textContent?.trim() || '';
+        const empGender = cells[2]?.textContent?.trim() || '';
+        const empDept = cells[3]?.textContent?.trim() || '';
+        const empShift = cells[4]?.textContent?.trim() || '';
+        
+        // ملء حقول النافذة المنبثقة
+        const elements = {
+            'employeeId': employeeId,
+            'statusType': status,
+            'empId': empId,
+            'empName': empName,
+            'empDept': empDept,
+            'empDate': document.querySelector('input[name="selected_date"]')?.value || ''
+        };
+        
+        // تعيين القيم للعناصر
+        for (const [elementId, value] of Object.entries(elements)) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = value;
+            } else {
+                console.warn(`العنصر ${elementId} غير موجود`);
+            }
+        }
+        
+        // إعادة تعيين النموذج
+        resetForm();
+        
+        // إظهار/إخفاء الأقسام حسب الحالة
+        toggleSections(status, empShift);
+        
+        // إظهار النافذة المنبثقة
+        showModal();
+        
+    } catch (error) {
+        console.error('خطأ في دالة setStatus:', error);
+        alert('حدث خطأ في فتح نافذة تفاصيل الحالة');
+    }
+}
+
+// دالة إعادة تعيين النموذج
+function resetForm() {
+    const fieldsToReset = [
+        'checkIn', 'checkOut', 'notes', 
+        'selectedSubstitute', 'reportFile'
+    ];
+    
+    fieldsToReset.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            if (element.type === 'file') {
+                element.value = '';
+            } else {
+                element.value = '';
+            }
+        }
+    });
+    
+    // مسح نتائج البحث عن البديل
+    const substituteResults = document.getElementById('substituteResults');
+    if (substituteResults) {
+        substituteResults.innerHTML = '';
+    }
+}
+
+// دالة إظهار/إخفاء الأقسام
+function toggleSections(status, empShift) {
+    const timeSection = document.getElementById('timeSection');
+    const reportSection = document.getElementById('reportSection');
+    
+    if (timeSection && reportSection) {
+        if (status === 'present') {
+            timeSection.style.display = 'block';
+            reportSection.style.display = 'none';
+            setDefaultTimes(empShift);
+        } else {
+            timeSection.style.display = 'none';
+            reportSection.style.display = 'block';
+        }
+    }
+}
+
+// دالة تعيين الأوقات الافتراضية
+function setDefaultTimes(shift) {
+    const shiftTimes = {
+        'صباحية': { start: '07:00', end: '15:00' },
+        'مسائية': { start: '15:00', end: '23:00' },
+        'ليلية': { start: '23:00', end: '07:00' }
+    };
+    
+    const checkInElement = document.getElementById('checkIn');
+    const checkOutElement = document.getElementById('checkOut');
+    
+    if (shiftTimes[shift] && checkInElement && checkOutElement) {
+        checkInElement.value = shiftTimes[shift].start;
+        checkOutElement.value = shiftTimes[shift].end;
+    }
+}
+
+// دالة إظهار النافذة المنبثقة
+function showModal() {
+    const modal = document.getElementById('statusModal');
+    if (modal) {
+        if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#statusModal').modal('show');
+        } else {
+            // استخدام Bootstrap 5 إذا لم تكن jQuery متاحة
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+        }
+    } else {
+        console.error('النافذة المنبثقة غير موجودة');
+    }
+}
+
+// دالة حفظ الحالة
+function saveStatus() {
+    try {
+        const employeeId = document.getElementById('employeeId')?.value;
+        const status = document.getElementById('statusType')?.value;
+        
+        if (!employeeId || !status) {
+            alert('بيانات غير مكتملة');
+            return;
+        }
+        
+        // جمع البيانات
+        const statusData = {
+            status: status,
+            check_in: document.getElementById('checkIn')?.value || null,
+            check_out: document.getElementById('checkOut')?.value || null,
+            notes: document.getElementById('notes')?.value || null,
+            substitute_id: document.getElementById('selectedSubstitute')?.value || null,
+            report_file: document.getElementById('reportFile')?.files[0] || null
+        };
+        
+        // التحقق من اكتمال البيانات المطلوبة
+        if (!validateStatusData(statusData)) {
+            return;
+        }
+        
+        // حفظ البيانات
+        attendanceData[employeeId] = statusData;
+        
+        // تحديث عرض الحالة
+        updateStatusDisplay(employeeId);
+        
+        // إغلاق النافذة
+        hideModal();
+        
+        // إظهار رسالة نجاح
+        showSuccessMessage(status);
+        
+    } catch (error) {
+        console.error('خطأ في حفظ الحالة:', error);
+        alert('حدث خطأ في حفظ البيانات');
+    }
+}
+
+// دالة التحقق من صحة البيانات
+function validateStatusData(data) {
+    if (data.status === 'present') {
+        if (!data.check_in || !data.check_out) {
+            alert('يرجى إدخال أوقات الدخول والخروج للموظف الحاضر');
+            return false;
+        }
+    } else if (data.status === 'absent' || data.status === 'withdrawn') {
+        if (!data.report_file && !data.notes) {
+            alert('يرجى إرفاق تقرير أو إضافة ملاحظات للغياب أو الانسحاب');
+            return false;
+        }
+    }
+    return true;
+}
+
+// دالة تحديث عرض الحالة
+function updateStatusDisplay(employeeId) {
+    try {
+        const data = attendanceData[employeeId];
+        if (!data) return;
+        
+        const statusSpan = document.getElementById(`status-${employeeId}`);
+        const completenessSpan = document.getElementById(`completeness-${employeeId}`);
+        
+        if (!statusSpan || !completenessSpan) {
+            console.error(`عناصر العرض غير موجودة للموظف ${employeeId}`);
+            return;
+        }
+        
+        // تحديث الحالة بألوان محسنة
+        const statusConfig = {
+            'present': { text: 'حاضر', class: 'attendance-status-badge badge-present' },
+            'absent': { text: 'غائب', class: 'attendance-status-badge badge-absent' },
+            'withdrawn': { text: 'منسحب', class: 'attendance-status-badge badge-withdrawn' }
+        };
+        
+        const config = statusConfig[data.status] || { text: 'لم يحدد', class: 'attendance-status-badge badge-not-set' };
+        statusSpan.textContent = config.text;
+        statusSpan.className = config.class;
+        
+        // تحديث حالة اكتمال البيانات بألوان محسنة
+        const isComplete = checkDataCompleteness(data);
+        completenessSpan.textContent = isComplete ? 'مكتملة' : 'غير مكتملة';
+        completenessSpan.className = `attendance-status-badge ${isComplete ? 'badge-complete' : 'badge-incomplete'}`;
+        
+    } catch (error) {
+        console.error('خطأ في تحديث العرض:', error);
+    }
+}
+
+// دالة فحص اكتمال البيانات
+function checkDataCompleteness(data) {
+    if (data.status === 'present') {
+        return data.check_in && data.check_out;
+    } else if (data.status === 'absent' || data.status === 'withdrawn') {
+        return data.report_file || (data.notes && data.notes.trim().length > 0);
+    }
+    return false;
+}
+
+// دالة إخفاء النافذة المنبثقة
+function hideModal() {
+    const modal = document.getElementById('statusModal');
+    if (modal) {
+        if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#statusModal').modal('hide');
+        } else {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+        }
+    }
+}
+
+// دالة إظهار رسالة النجاح
+function showSuccessMessage(status) {
+    const statusText = {
+        'present': 'حاضر',
+        'absent': 'غائب',
+        'withdrawn': 'منسحب'
+    };
+    
+    console.log(`تم حفظ حالة الموظف: ${statusText[status]}`);
+}
+
+// دالة البحث عن البديل
+function searchSubstitute() {
+    const searchTerm = document.getElementById('substituteSearch')?.value;
+    const selectedDate = document.getElementById('empDate')?.value;
+    
+    if (!searchTerm || searchTerm.trim().length < 2) {
+        alert('يرجى إدخال كلمة بحث (حرفين على الأقل)');
+        return;
+    }
+    
+    fetch('/api/search-substitute', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]')?.value || ''
+        },
+        body: JSON.stringify({
+            search: searchTerm.trim(),
+            date: selectedDate
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('فشل في البحث');
+        }
+        return response.json();
+    })
+    .then(data => {
+        displaySubstituteResults(data.employees || []);
+    })
+    .catch(error => {
+        console.error('خطأ في البحث:', error);
+        alert('حدث خطأ في البحث عن البديل');
+    });
+}
+
+// دالة عرض نتائج البحث
+function displaySubstituteResults(employees) {
+    const resultsDiv = document.getElementById('substituteResults');
+    if (!resultsDiv) return;
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = '<p class="text-warning">لا توجد نتائج</p>';
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>الرقم الوظيفي</th><th>الاسم</th><th>القسم</th><th>إجراء</th></tr></thead><tbody>';
+    
+    employees.forEach(emp => {
+        html += `<tr>
+            <td>${emp.employee_id || ''}</td>
+            <td>${emp.name || emp.full_name || ''}</td>
+            <td>${emp.department || ''}</td>
+            <td><button type="button" class="btn btn-sm btn-success" onclick="selectSubstitute(${emp.id}, '${(emp.name || emp.full_name || '').replace(/'/g, "\\'")}')">اختيار</button></td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    resultsDiv.innerHTML = html;
+}
+
+// دالة اختيار البديل
+function selectSubstitute(empId, empName) {
+    const selectedSubstituteElement = document.getElementById('selectedSubstitute');
+    const substituteResultsElement = document.getElementById('substituteResults');
+    
+    if (selectedSubstituteElement) {
+        selectedSubstituteElement.value = empId;
+    }
+    
+    if (substituteResultsElement) {
+        substituteResultsElement.innerHTML = `<p class="text-success">تم اختيار: ${empName}</p>`;
+    }
+}
+
+// معالج إرسال النموذج الرئيسي
+document.addEventListener('DOMContentLoaded', function() {
+    const attendanceForm = document.getElementById('attendanceForm');
+    if (attendanceForm) {
+        attendanceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // التحقق من وجود بيانات للحفظ
+            if (Object.keys(attendanceData).length === 0) {
+                alert('لا توجد بيانات حضور للحفظ');
+                return;
+            }
+            
+            // تحضير البيانات
+            const requestData = {
+                selected_date: document.querySelector('input[name="selected_date"]')?.value || '',
+                attendance_data: attendanceData
+            };
+            
+            // إرسال البيانات
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]')?.value || ''
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('فشل في الحفظ');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('تم حفظ البيانات بنجاح');
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    alert('حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في الحفظ:', error);
+                alert('حدث خطأ في حفظ البيانات');
+            });
+        });
+    }
+    
+    // معالج تغيير خيار البديل
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'has_substitute') {
+            const substituteSection = document.getElementById('substituteSection');
+            if (substituteSection) {
+                substituteSection.style.display = e.target.value === 'yes' ? 'block' : 'none';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
